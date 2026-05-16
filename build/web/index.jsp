@@ -9,7 +9,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Quest Chronicle - Final Action</title>
+    <title>Quest Chronicle</title>
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
@@ -46,31 +46,24 @@
             </div>
         </div>
     </div>
-    
-    <div id="inventory-menu" class="overlay" data-type="menu">
-        <div class="settings-box" style="width: 450px;">
-            <h2 style="text-align:center; margin-top:0; color: #f1c40f;">INVENTORY</h2>
-            
-            <div id="inv-stats" style="margin-bottom: 10px; font-size: 15px; color: #ecf0f1; text-align: center; font-weight: bold;">
-                ATK: <span id="stat-atk">15</span> | DEF: <span id="stat-def">5</span>
-            </div>
-            <p style="font-size: 12px; text-align: center; margin-top: -5px; color: #bdc3c7;">
-                Weapon: <span id="eq-wpn">None</span> | Armor: <span id="eq-arm">None</span>
-            </p>
-            
-            <div id="inv-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; min-height: 120px; background: #1a1a1a; padding: 10px; border-radius: 5px; border: 1px solid #7f8c8d;">
-            </div>
-            
-            <div style="display:flex; justify-content:center; margin-top: 15px;">
-                <div class="menu-btn selected" onclick="closeInventory()">TUTUP (I)</div>
-            </div>
-        </div>
+
+    <div id="game-over-menu" class="overlay" data-type="menu">
+        <h1 style="color: #e74c3c; font-size: 4rem; margin-bottom: 5px; text-shadow: 3px 3px 0 #000;">GAME OVER</h1>
+        <p style="margin-bottom: 30px; color: #bdc3c7;">Karaktermu telah gugur dalam pertempuran.</p>
+        <div class="menu-btn selected" onclick="backToMainMenu()">MENU UTAMA</div>
     </div>
-    
+
     <div id="hud">
         <b>[ <span id="job-val">-</span> ]</b>
-        <div style="font-size: 13px; margin-top:5px">HP: <span id="hp-val">100</span> / 100</div>
+        <div style="font-size: 13px; margin-top:5px">HP: <span id="hp-val">100</span> / <span id="max-hp-val">100</span></div>
         <div class="hp-bar"><div id="hp-fill"></div></div>
+        
+        <div style="font-size: 13px; margin-top:5px; color: #f1c40f;">
+            <span id="res-name">Resource</span>: <span id="res-val">0</span>
+        </div>
+        <div style="font-size: 11px; margin-top:10px; color: #bdc3c7;">
+            Skill 1: [Tombol 1] | Skill 2: [Tombol 2]
+        </div>
     </div>
 </div>
 
