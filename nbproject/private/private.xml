@@ -3,24 +3,24 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/perkodingan/project/Questchornicle/web/index.jsp</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/web/META-INF/context.xml</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/src/java/pack/GameMap.java</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/src/java/pack/Room.java</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/src/java/pack/GameEngine.java</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/web/script.js</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/src/java/pack/GameServlet.java</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/src/java/pack/BattleSystem.java</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/src/java/pack/Attackable.java</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/src/java/pack/Levelable.java</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/src/java/pack/Saveable.java</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/src/java/pack/Character.java</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/src/java/pack/Item.java</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/src/java/pack/Inventory.java</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/src/java/pack/Hero.java</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/src/java/pack/Enemy.java</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/src/java/pack/SaveManager.java</file>
-            <file>file:/D:/perkodingan/project/Questchornicle/web/style.css</file>
+            <file>file:/D:/perkodingan/project/questchornicle/web/index.jsp</file>
+            <file>file:/D:/perkodingan/project/questchornicle/web/META-INF/context.xml</file>
+            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/engine/GameMap.java</file>
+            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/model/Room.java</file>
+            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/engine/GameEngine.java</file>
+            <file>file:/D:/perkodingan/project/questchornicle/web/script.js</file>
+            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/controller/GameServlet.java</file>
+            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/engine/BattleSystem.java</file>
+            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/model/Attackable.java</file>
+            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/model/Levelable.java</file>
+            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/system/Saveable.java</file>
+            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/model/Character.java</file>
+            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/model/Item.java</file>
+            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/model/Inventory.java</file>
+            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/model/Hero.java</file>
+            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/model/Enemy.java</file>
+            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/system/SaveManager.java</file>
+            <file>file:/D:/perkodingan/project/questchornicle/web/style.css</file>
         </group>
     </open-files>
 </project-private>
