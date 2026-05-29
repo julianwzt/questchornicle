@@ -37,7 +37,20 @@ const mapGrid = [
 let gameState = 'MAIN-MENU'; 
 let isGameStarted = false; 
 let projectiles = []; 
-
+const floatingTexts = [];
+let stageFinished = false;
+let enemy = {
+    x: 500,
+    y: 300,
+    width: 40,
+    height: 48,
+    hp: 200,
+    maxHp: 200,
+    damage: 10,
+    speed: 1,
+    alive: true,
+    attackCooldown: 0
+};
 let player = { 
     x: 100, y: 100, 
     speed: 2.5, // DITURUNKAN AGAR TIDAK TERLALU CEPAT
@@ -92,19 +105,61 @@ let player = {
         updateHUD();
     },
 
-    performMelee(damage, color = '#f1c40f') {
-        if (this.isAttacking) return;
-        this.isAttacking = true; this.slashColor = color;
-        
-        let atkBox = { x: this.x - 20, y: this.y - 20, size: this.width + 40 };
-        if (enemy.alive && checkCollisionBox(atkBox, enemy)) {
-            enemy.hp -= damage;
-            if (this.job === 'Warrior') this.resVal = Math.min(this.resMax, this.resVal + 15);
-            if (enemy.hp <= 0) enemy.alive = false;
+   performMelee(damage, color = '#f1c40f') {
+
+    if (this.isAttacking) return;
+
+    this.isAttacking = true;
+
+    this.slashColor = color;
+
+    let atkBox = {
+
+        x: this.x - 20,
+        y: this.y - 20,
+
+        size: this.width + 40
+    };
+
+    if (
+        enemy.alive &&
+        checkCollisionBox(atkBox, enemy)
+    ) {
+
+        enemy.hp -= damage;
+
+        showFloatingDamage(
+            enemy.x,
+            enemy.y,
+            damage,
+            '#f1c40f'
+        );
+
+        if (this.job === 'Warrior') {
+
+            this.resVal = Math.min(
+                this.resMax,
+                this.resVal + 15
+            );
         }
-        updateHUD();
-        setTimeout(() => { this.isAttacking = false; }, 150);
+
+        if (enemy.hp <= 0) {
+
+            enemy.hp = 0;
+
+            enemy.alive = false;
+                stageClear();
+        }
     }
+
+    updateHUD();
+
+    setTimeout(() => {
+
+        this.isAttacking = false;
+
+    }, 150);
+}
 };
 
 function spawnProjectile(x, y, dir, color, damage) {
@@ -114,7 +169,6 @@ function spawnProjectile(x, y, dir, color, damage) {
     projectiles.push({ x: x + 15, y: y + 15, vx: vx, vy: vy, size: 10, color: color, damage: damage });
 }
 
-let enemy = { x: 400, y: 300, size: TILE_SIZE, color: '#e74c3c', hp: 200, maxHp: 200, atk: 15, alive: true };
 const keys = {};
 
 // --- 4. SISTEM NAVIGASI & INTERAKSI UI ---
@@ -166,6 +220,29 @@ function gameOver() {
     showScreen('game-over-menu');
 }
 
+function stageClear() {
+    if (stageFinished) return;
+    stageFinished = true;
+    gameState = 'STAGE-CLEAR';
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+    ctx.fillStyle = 'yellow';
+    ctx.font = 'bold 50px Arial';
+    ctx.fillText(
+        'STAGE CLEAR!',
+        canvas.width / 2 - 180,
+        canvas.height / 2
+    );
+    setTimeout(() => {
+        backToMainMenu();
+    }, 2000);
+}
+
 function backToMainMenu() {
     isGameStarted = false;
     document.getElementById('hud').style.display = 'none';
@@ -174,6 +251,7 @@ function backToMainMenu() {
 
 function startGame(job) {
     isGameStarted = true; 
+    stageFinished = false;
     player.setJob(job);
     player.x = 100; player.y = 100; // Reset posisi
     enemy.hp = enemy.maxHp; enemy.alive = true; projectiles = [];
@@ -238,8 +316,25 @@ function updateHUD() {
     document.getElementById('res-val').innerText = player.resVal + " / " + player.resMax;
 }
 
-function checkCollision(x, y, w, h, target) { return x < target.x + target.size && x + w > target.x && y < target.y + target.size && y + h > target.y; }
-function checkCollisionBox(box1, box2) { return box1.x < box2.x + box2.size && box1.x + box1.size > box2.x && box1.y < box2.y + box2.size && box1.y + box1.size > box2.y; }
+function checkCollision(x, y, w, h, target) {
+
+    return (
+        x < target.x + target.width &&
+        x + w > target.x &&
+        y < target.y + target.height &&
+        y + h > target.y
+    );
+}
+
+function checkCollisionBox(box1, box2) {
+
+    return (
+        box1.x < box2.x + box2.width &&
+        box1.x + box1.size > box2.x &&
+        box1.y < box2.y + box2.height &&
+        box1.y + box1.size > box2.y
+    );
+}
 
 function isSolid(x, y) {
     let col = Math.floor(x / TILE_SIZE); let row = Math.floor(y / TILE_SIZE);
@@ -253,6 +348,77 @@ function drawMap() {
             let img = assets.tiles[mapGrid[row][col]];
             if (img && img.complete) ctx.drawImage(img, col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
+    }
+}
+
+function showFloatingDamage(x, y, damage, color) {
+
+    floatingTexts.push({
+
+        x: x,
+        y: y,
+
+        text: '-' + Math.floor(damage),
+
+        color: color,
+
+        life: 60
+    });
+}
+
+function updateEnemy() {
+
+    if (!enemy.alive) return;
+
+    let dx = player.x - enemy.x;
+    let dy = player.y - enemy.y;
+
+    let distance = Math.sqrt(dx * dx + dy * dy);
+
+    // enemy chase
+    if (distance > 5) {
+
+        enemy.x += (dx / distance) * enemy.speed;
+
+        enemy.y += (dy / distance) * enemy.speed;
+    }
+
+    // enemy attack
+    if (distance < 50) {
+
+        if (enemy.attackCooldown <= 0) {
+
+            let damage = enemy.damage;
+
+            if (player.isDefending) {
+
+                damage *= 0.3;
+            }
+
+            player.hp -= damage;
+
+            if (player.hp < 0) {
+
+                player.hp = 0;
+                gameOver();
+            }
+
+            showFloatingDamage(
+                player.x,
+                player.y,
+                damage,
+                'red'
+            );
+
+            updateHUD();
+
+            enemy.attackCooldown = 60;
+        }
+    }
+
+    if (enemy.attackCooldown > 0) {
+
+        enemy.attackCooldown--;
     }
 }
 
@@ -277,7 +443,17 @@ function updateProjectiles() {
         if (isSolid(p.x, p.y)) { projectiles.splice(i, 1); continue; }
         if (enemy.alive && checkCollision(p.x, p.y, p.size, p.size, enemy)) {
             enemy.hp -= p.damage;
-            if (enemy.hp <= 0) enemy.alive = false;
+            showFloatingDamage(
+                enemy.x,
+                enemy.y,
+                p.damage,
+                '#3498db'
+            );
+            if (enemy.hp <= 0) {
+                enemy.hp = 0;
+                enemy.alive = false;
+                stageClear();
+};
             projectiles.splice(i, 1); updateHUD();
         }
     }
@@ -287,31 +463,56 @@ function gameLoop() {
     if (gameState === 'PLAYING') {
         updatePlayer();
         updateProjectiles();
-
-        // Cek jika pemain menerima damage
-        if (enemy.alive && !player.isDefending && checkCollision(player.x, player.y, player.width, player.height, enemy)) {
-            player.hp -= 0.5;
-            
-            // TRIGGGER GAME OVER
-            if (player.hp <= 0) {
-                player.hp = 0;
-                updateHUD();
-                gameOver();
-                return; // Hentikan loop pada frame ini
-            }
-            updateHUD();
-        }
+        updateEnemy();
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawMap();
         
-        projectiles.forEach(p => {
-            ctx.fillStyle = p.color;
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+      projectiles.forEach(p => {
+
+    ctx.fillStyle = p.color;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        p.x,
+        p.y,
+        p.size,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+});
+
+floatingTexts.forEach((text, index) => {
+    ctx.fillStyle = text.color;
+    ctx.font = '20px Arial';
+    ctx.fillText(
+        text.text,
+        text.x,
+        text.y
+        );
+
+        text.y -= 1;
+
+         text.life--;
+
+            if (text.life <= 0) {
+
+            floatingTexts.splice(index, 1);
+             }
         });
 
         if (enemy.alive) {
-            ctx.fillStyle = enemy.color; ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
+            ctx.fillStyle = 'red';
+
+            ctx.fillRect(
+            enemy.x,
+            enemy.y,
+            enemy.width,
+            enemy.height
+        );
             ctx.fillStyle = 'white'; ctx.font = "bold 14px sans-serif";
             ctx.fillText("HP: " + Math.ceil(enemy.hp), enemy.x, enemy.y - 10);
         }

@@ -33,4 +33,8 @@ public abstract class Character implements Attackable, Levelable {
     public int getHp() { return hp; }
     public int getMaxHp() { return maxHp; }
     public int getLevel() { return level; }
+
+    void heal(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }
