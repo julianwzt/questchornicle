@@ -21,45 +21,63 @@ loadAsset('tiles', '4', 'res/tiles/tree.png');
 
 loadAsset('objects', 'sword', 'res/objects/sword_normal.png');
 loadAsset('objects', 'potion', 'res/objects/potion_red.png');
+loadAsset('objects', 'chest', 'res/objects/chest.png'); // Fallback akan handle kalau gak ada
 
 // --- 2. TILEMAP SYSTEM ---
 const TILE_SIZE = 48; 
+
+// Map 20x25 (960x1200) — rapi, variatif, gak kosong
 const mapGrid = [
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,0,0,0,0,4,4,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,2,2,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,2,2,2,0,1],
-    [1,4,4,0,0,0,0,0,0,0,0,0,2,2,0,1],
-    [1,4,4,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,3,3,3,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,3,3,3,0,0,0,4,4,1],
-    [1,0,2,2,2,0,0,0,0,0,0,0,0,4,4,1],
-    [1,0,0,0,2,2,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,4,4,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,4,4,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,4,4,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,4,4,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 ];
 
-const MAP_WIDTH = mapGrid[0].length * TILE_SIZE;
-const MAP_HEIGHT = mapGrid.length * TILE_SIZE;
+const MAP_WIDTH = mapGrid[0].length * TILE_SIZE;  // 1200
+const MAP_HEIGHT = mapGrid.length * TILE_SIZE;      // 960
+
+// --- OBJECTS ON MAP ---
+const chests = [
+    { x: 2 * TILE_SIZE, y: 2 * TILE_SIZE, opened: false, item: 'potion' },
+    { x: 22 * TILE_SIZE, y: 2 * TILE_SIZE, opened: false, item: 'sword' },
+    { x: 2 * TILE_SIZE, y: 17 * TILE_SIZE, opened: false, item: 'potion' },
+    { x: 22 * TILE_SIZE, y: 17 * TILE_SIZE, opened: false, item: 'potion' }
+];
+
+const spawnAreas = [
+    { x: 18 * TILE_SIZE, y: 5 * TILE_SIZE, w: 5 * TILE_SIZE, h: 4 * TILE_SIZE, label: 'Spawn A' },
+    { x: 18 * TILE_SIZE, y: 13 * TILE_SIZE, w: 5 * TILE_SIZE, h: 4 * TILE_SIZE, label: 'Spawn B' }
+];
 
 // --- CAMERA SYSTEM ---
-const camera = {
-    x: 0,
-    y: 0
-};
+const camera = { x: 0, y: 0 };
 
 function updateCamera() {
-    // Center camera on player
     camera.x = player.x + player.width / 2 - canvas.width / 2;
     camera.y = player.y + player.height / 2 - canvas.height / 2;
 
-    // Clamp camera to map bounds (jangan sampai kamera keluar map)
     if (camera.x < 0) camera.x = 0;
     if (camera.y < 0) camera.y = 0;
     if (camera.x + canvas.width > MAP_WIDTH) camera.x = MAP_WIDTH - canvas.width;
     if (camera.y + canvas.height > MAP_HEIGHT) camera.y = MAP_HEIGHT - canvas.height;
 
-    // Jika map lebih kecil dari canvas, center-kan map
     if (MAP_WIDTH < canvas.width) camera.x = -(canvas.width - MAP_WIDTH) / 2;
     if (MAP_HEIGHT < canvas.height) camera.y = -(canvas.height - MAP_HEIGHT) / 2;
 }
@@ -72,8 +90,8 @@ const floatingTexts = [];
 let stageFinished = false;
 
 let enemy = {
-    x: 500,
-    y: 300,
+    x: 19 * TILE_SIZE,
+    y: 7 * TILE_SIZE,
     width: 40,
     height: 48,
     hp: 200,
@@ -85,13 +103,23 @@ let enemy = {
 };
 
 let player = { 
-    x: 100, y: 100, 
+    x: 3 * TILE_SIZE, y: 3 * TILE_SIZE, 
     speed: 2.5,
-    width: TILE_SIZE, height: TILE_SIZE,
-    job: '', hp: 100, maxHp: 100, isAttacking: false,
-    direction: 'down', frameCounter: 0, frameNum: 1, 
-    baseAtk: 10, baseDef: 5, slashColor: '#f1c40f',
-    resName: '', resVal: 0, resMax: 100,
+    width: TILE_SIZE, 
+    height: TILE_SIZE,
+    job: '', 
+    hp: 100, 
+    maxHp: 100, 
+    isAttacking: false,
+    direction: 'down', 
+    frameCounter: 0, 
+    frameNum: 1, 
+    baseAtk: 10, 
+    baseDef: 5, 
+    slashColor: '#f1c40f',
+    resName: '', 
+    resVal: 0, 
+    resMax: 100,
     isDefending: false,
 
     setJob(jobName) {
@@ -148,6 +176,20 @@ let player = {
             y: this.y - 20,
             size: this.width + 40
         };
+
+        // Cek collision dengan chest (buka chest)
+        chests.forEach(chest => {
+            if (!chest.opened && checkCollisionBox(atkBox, { x: chest.x, y: chest.y, width: TILE_SIZE, height: TILE_SIZE })) {
+                chest.opened = true;
+                showFloatingDamage(chest.x, chest.y, 'ITEM!', '#f1c40f');
+                // Bonus efek
+                if (chest.item === 'potion') {
+                    this.hp = Math.min(this.maxHp, this.hp + 30);
+                    showFloatingDamage(this.x, this.y, '+30 HP', '#2ecc71');
+                }
+                updateHUD();
+            }
+        });
 
         if (enemy.alive && checkCollisionBox(atkBox, enemy)) {
             enemy.hp -= damage;
@@ -250,8 +292,19 @@ function startGame(job) {
     isGameStarted = true; 
     stageFinished = false;
     player.setJob(job);
-    player.x = 100; player.y = 100;
-    enemy.hp = enemy.maxHp; enemy.alive = true; projectiles = [];
+    player.x = 3 * TILE_SIZE; 
+    player.y = 3 * TILE_SIZE;
+
+    // Reset enemy ke spawn area A
+    enemy.x = 19 * TILE_SIZE;
+    enemy.y = 7 * TILE_SIZE;
+    enemy.hp = enemy.maxHp; 
+    enemy.alive = true; 
+    projectiles = [];
+
+    // Reset chests
+    chests.forEach(c => c.opened = false);
+
     document.getElementById('job-val').innerText = job; 
     document.getElementById('hud').style.display = 'block';
     updateHUD(); 
@@ -302,6 +355,7 @@ window.addEventListener('keydown', e => {
         if (e.code === 'Digit2') player.skill2(); 
     }
 });
+
 window.addEventListener('keyup', e => keys[e.code] = false);
 
 // --- 6. LOGIKA GAME ENGINE ---
@@ -336,11 +390,11 @@ function isSolid(x, y) {
     let row = Math.floor(y / TILE_SIZE);
     if (row < 0 || row >= mapGrid.length || col < 0 || col >= mapGrid[0].length) return true;
     let tileId = mapGrid[row][col]; 
+    // 1=wall, 2=water, 4=tree adalah solid. 0=grass, 3=earth bisa dilewati.
     return tileId === 1 || tileId === 2 || tileId === 4; 
 }
 
 function drawMap() {
-    // Hitung range tile yang terlihat di kamera untuk optimasi
     let startCol = Math.floor(camera.x / TILE_SIZE);
     let endCol = startCol + (canvas.width / TILE_SIZE) + 1;
     let startRow = Math.floor(camera.y / TILE_SIZE);
@@ -356,16 +410,71 @@ function drawMap() {
             let img = assets.tiles[mapGrid[row][col]];
             if (img && img.complete) {
                 ctx.drawImage(img, col * TILE_SIZE - camera.x, row * TILE_SIZE - camera.y, TILE_SIZE, TILE_SIZE);
+            } else {
+                // Fallback warna kalau asset belum load
+                const colors = ['#2ecc71', '#7f8c8d', '#3498db', '#d35400', '#27ae60'];
+                ctx.fillStyle = colors[mapGrid[row][col]] || '#000';
+                ctx.fillRect(col * TILE_SIZE - camera.x, row * TILE_SIZE - camera.y, TILE_SIZE, TILE_SIZE);
             }
         }
     }
+}
+
+function drawChests() {
+    chests.forEach(chest => {
+        let cx = chest.x - camera.x;
+        let cy = chest.y - camera.y;
+
+        // Hanya draw kalau dalam viewport
+        if (cx + TILE_SIZE < 0 || cx > canvas.width || cy + TILE_SIZE < 0 || cy > canvas.height) return;
+
+        let img = assets.objects['chest'];
+        if (img && img.complete && !chest.opened) {
+            ctx.drawImage(img, cx, cy, TILE_SIZE, TILE_SIZE);
+        } else {
+            // Fallback: kotak kuning untuk chest tertutup, abu-abu untuk terbuka
+            ctx.fillStyle = chest.opened ? '#7f8c8d' : '#f1c40f';
+            ctx.fillRect(cx + 8, cy + 8, TILE_SIZE - 16, TILE_SIZE - 16);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(cx + 8, cy + 8, TILE_SIZE - 16, TILE_SIZE - 16);
+
+            if (!chest.opened) {
+                ctx.fillStyle = '#000';
+                ctx.font = 'bold 12px Arial';
+                ctx.fillText('?', cx + 20, cy + 32);
+            }
+        }
+    });
+}
+
+function drawSpawnAreas() {
+    spawnAreas.forEach(area => {
+        let ax = area.x - camera.x;
+        let ay = area.y - camera.y;
+
+        // Culling
+        if (ax + area.w < 0 || ax > canvas.width || ay + area.h < 0 || ay > canvas.height) return;
+
+        // Area transparan ungu
+        ctx.fillStyle = 'rgba(155, 89, 182, 0.25)';
+        ctx.fillRect(ax, ay, area.w, area.h);
+        ctx.strokeStyle = 'rgba(155, 89, 182, 0.6)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(ax, ay, area.w, area.h);
+
+        // Label
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        ctx.font = 'bold 12px Arial';
+        ctx.fillText(area.label, ax + 10, ay + 20);
+    });
 }
 
 function showFloatingDamage(x, y, damage, color) {
     floatingTexts.push({
         x: x,
         y: y,
-        text: '-' + Math.floor(damage),
+        text: typeof damage === 'number' ? '-' + Math.floor(damage) : damage,
         color: color,
         life: 60
     });
@@ -378,13 +487,11 @@ function updateEnemy() {
     let dy = player.y - enemy.y;
     let distance = Math.sqrt(dx * dx + dy * dy);
 
-    // Enemy chase
     if (distance > 5) {
         enemy.x += (dx / distance) * enemy.speed;
         enemy.y += (dy / distance) * enemy.speed;
     }
 
-    // Enemy attack
     if (distance < 50) {
         if (enemy.attackCooldown <= 0) {
             let damage = enemy.damage;
@@ -413,15 +520,19 @@ function updatePlayer() {
         newY -= player.speed; player.direction = 'up'; isMoving = true; 
     } else if (keys['ArrowDown'] || keys['KeyS']) { 
         newY += player.speed; player.direction = 'down'; isMoving = true; 
-    } else if (keys['ArrowLeft'] || keys['KeyA']) { 
+    }
+
+    if (keys['ArrowLeft'] || keys['KeyA']) { 
         newX -= player.speed; player.direction = 'left'; isMoving = true; 
     } else if (keys['ArrowRight'] || keys['KeyD']) { 
         newX += player.speed; player.direction = 'right'; isMoving = true; 
     }
 
-    // Collision detection dengan tembok & batas map
-    if (!isSolid(newX + 10, newY + 30) && !isSolid(newX + player.width - 10, newY + 30) &&
-        !isSolid(newX + 10, newY + player.height) && !isSolid(newX + player.width - 10, newY + player.height)) {
+    // Collision detection dengan tembok & obstacle (4-point check)
+    if (!isSolid(newX + 10, newY + 30) && 
+        !isSolid(newX + player.width - 10, newY + 30) &&
+        !isSolid(newX + 10, newY + player.height) && 
+        !isSolid(newX + player.width - 10, newY + player.height)) {
         player.x = newX; 
         player.y = newY;
     }
@@ -479,8 +590,10 @@ function gameLoop() {
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawMap();
+        drawSpawnAreas();
+        drawChests();
 
-        // Draw projectiles (dengan offset kamera)
+        // Draw projectiles
         projectiles.forEach(p => {
             ctx.fillStyle = p.color;
             ctx.beginPath();
@@ -488,7 +601,7 @@ function gameLoop() {
             ctx.fill();
         });
 
-        // Draw floating texts (dengan offset kamera)
+        // Draw floating texts
         for (let i = floatingTexts.length - 1; i >= 0; i--) {
             let text = floatingTexts[i];
             ctx.fillStyle = text.color;
@@ -499,7 +612,7 @@ function gameLoop() {
             if (text.life <= 0) floatingTexts.splice(i, 1);
         }
 
-        // Draw enemy (dengan offset kamera)
+        // Draw enemy
         if (enemy.alive) {
             ctx.fillStyle = 'red';
             ctx.fillRect(enemy.x - camera.x, enemy.y - camera.y, enemy.width, enemy.height);
@@ -508,9 +621,11 @@ function gameLoop() {
             ctx.fillText("HP: " + Math.ceil(enemy.hp), enemy.x - camera.x, enemy.y - camera.y - 10);
         }
 
-        // Draw player (dengan offset kamera)
+        // Draw player
         let img = assets.player[`${player.direction}_${player.frameNum}`];
-        if (img && img.complete) ctx.drawImage(img, player.x - camera.x, player.y - camera.y, player.width, player.height);
+        if (img && img.complete) {
+            ctx.drawImage(img, player.x - camera.x, player.y - camera.y, player.width, player.height);
+        }
 
         // Defend effect
         if (player.isDefending) {
