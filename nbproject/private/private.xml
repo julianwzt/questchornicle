@@ -2,25 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/D:/perkodingan/project/questchornicle/web/index.jsp</file>
-            <file>file:/D:/perkodingan/project/questchornicle/web/META-INF/context.xml</file>
-            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/engine/GameMap.java</file>
-            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/model/Room.java</file>
-            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/engine/GameEngine.java</file>
-            <file>file:/D:/perkodingan/project/questchornicle/web/script.js</file>
-            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/controller/GameServlet.java</file>
-            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/engine/BattleSystem.java</file>
-            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/model/Attackable.java</file>
-            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/model/Levelable.java</file>
-            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/system/Saveable.java</file>
-            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/model/Character.java</file>
-            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/model/Item.java</file>
-            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/model/Inventory.java</file>
-            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/model/Hero.java</file>
-            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/model/Enemy.java</file>
-            <file>file:/D:/perkodingan/project/questchornicle/src/java/game/system/SaveManager.java</file>
-            <file>file:/D:/perkodingan/project/questchornicle/web/style.css</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>
