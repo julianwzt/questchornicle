@@ -5,11 +5,23 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 // --- 1. ASSET MANAGER ---
-const assets = { tiles: {}, player: {}, objects: {} };
+const assets = { tiles: {}, player: {}, objects: {}, projectile: {} };
 function loadAsset(category, name, src) { 
     const img = new Image(); 
     img.src = src; 
     assets[category][name] = img; 
+}
+
+const PLAYER_TEXTURES = {
+    Warrior: { prefix: 'war', dirMap: { up: 'atas', down: 'bawah', left: 'kiri', right: 'kanan' } },
+    Archer: { prefix: 'arc', dirMap: { up: 'atas', down: 'bawah', left: 'kiri', right: 'kanan' } },
+    Mage: { prefix: 'mage', dirMap: { up: 'atas', down: 'bawah', left: 'kiri', right: 'kanan' } }
+};
+
+function getPlayerTextureKey(job, direction, frameNum = 1) {
+    const config = PLAYER_TEXTURES[job] || PLAYER_TEXTURES.Warrior;
+    const spriteDir = config.dirMap[direction] || 'bawah';
+    return `${config.prefix}_${spriteDir}_${frameNum}`;
 }
 
 loadAsset('tiles', '0', 'res/tiles/grass.png'); 
@@ -18,13 +30,22 @@ loadAsset('tiles', '2', 'res/tiles/water.png');
 loadAsset('tiles', '3', 'res/tiles/earth.png');
 loadAsset('tiles', '4', 'res/tiles/tree.png');
 
-['down_1', 'down_2', 'up_1', 'up_2', 'left_1', 'left_2', 'right_1', 'right_2'].forEach(dir => {
-    loadAsset('player', dir, `res/player/boy_${dir}.png`);
+Object.values(PLAYER_TEXTURES).forEach(({ prefix }) => {
+    ['atas_1', 'bawah_1', 'kiri_1', 'kanan_1'].forEach(sprite => {
+        loadAsset('player', `${prefix}_${sprite}`, `res/player/${prefix}_${sprite}.png`);
+    });
 });
 
 loadAsset('objects', 'sword', 'res/objects/sword_normal.png');
 loadAsset('objects', 'potion', 'res/objects/potion_red.png');
 loadAsset('objects', 'chest', 'res/objects/chest.png');
+
+const projectileDirMap = { up: 'atas', down: 'bawah', left: 'kiri', right: 'kanan' };
+
+['atas', 'bawah', 'kiri', 'kanan'].forEach(dir => {
+    loadAsset('projectile', `arrow_${dir}`, `res/projectile/arrow_${dir}.png`);
+    loadAsset('projectile', `petir_${dir}_1`, `res/projectile/petir_${dir}_1.png`);
+});
 
 // --- 2. TILEMAP SYSTEM (MULTI-MAP) ---
 const TILE_SIZE = 48; 
@@ -146,9 +167,9 @@ let player = {
         if (this.job === 'Warrior' && this.resVal >= 30) {
             this.resVal -= 30; this.performMelee(this.baseAtk * 2.5, '#e74c3c');
         } else if (this.job === 'Mage' && this.resVal >= 10) {
-            this.resVal -= 10; spawnProjectile(this.x, this.y, this.direction, '#3498db', 25);
+            this.resVal -= 10; spawnProjectile(this.x, this.y, this.direction, 25, 'mage');
         } else if (this.job === 'Archer' && this.resVal >= 1) {
-            this.resVal -= 1; spawnProjectile(this.x, this.y, this.direction, '#bdc3c7', 15);
+            this.resVal -= 1; spawnProjectile(this.x, this.y, this.direction, 15, 'archer');
         }
         updateHUD();
     },
@@ -160,8 +181,8 @@ let player = {
             this.resVal = Math.min(this.resMax, this.resVal + 30);
         } else if (this.job === 'Archer' && this.resVal >= 3) {
             this.resVal -= 3;
-            spawnProjectile(this.x, this.y, this.direction, '#bdc3c7', 15);
-            spawnProjectile(this.x + 10, this.y + 10, this.direction, '#bdc3c7', 15);
+            spawnProjectile(this.x, this.y, this.direction, 15, 'archer');
+            spawnProjectile(this.x + 10, this.y + 10, this.direction, 15, 'archer');
         }
         updateHUD();
     },
@@ -297,13 +318,28 @@ function usePotion(index) {
     }
 }
 
-function spawnProjectile(x, y, dir, color, damage) {
+function spawnProjectile(x, y, dir, damage, type = 'archer') {
     let vx = 0, vy = 0;
-    if (dir === 'up') vy = -8; 
+    if (dir === 'up') vy = -8;
     else if (dir === 'down') vy = 8;
-    else if (dir === 'left') vx = -8; 
+    else if (dir === 'left') vx = -8;
     else if (dir === 'right') vx = 8;
-    projectiles.push({ x: x + 15, y: y + 15, vx: vx, vy: vy, size: 10, color: color, damage: damage });
+
+    const textureName = type === 'mage'
+        ? `petir_${projectileDirMap[dir]}_1`
+        : `arrow_${projectileDirMap[dir]}`;
+
+    projectiles.push({
+        x: x + 15,
+        y: y + 15,
+        vx,
+        vy,
+        size: 24,
+        damage,
+        kind: type,
+        textureName,
+        dir
+    });
 }
 
 const keys = {};
@@ -706,7 +742,17 @@ function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawMap(); drawSpawnAreas(); drawChests();
 
-        projectiles.forEach(p => { ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x - camera.x, p.y - camera.y, p.size, 0, Math.PI * 2); ctx.fill(); });
+        projectiles.forEach(p => {
+            const img = assets.projectile[p.textureName];
+            if (img && img.complete) {
+                ctx.drawImage(img, p.x - camera.x, p.y - camera.y, p.size, p.size);
+            } else {
+                ctx.fillStyle = p.kind === 'mage' ? '#3498db' : '#bdc3c7';
+                ctx.beginPath();
+                ctx.arc(p.x - camera.x, p.y - camera.y, 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        });
 
         for (let i = floatingTexts.length - 1; i >= 0; i--) {
             let text = floatingTexts[i]; ctx.fillStyle = text.color; ctx.font = '20px Arial';
@@ -719,8 +765,11 @@ function gameLoop() {
             ctx.fillStyle = 'white'; ctx.font = "bold 14px sans-serif"; ctx.fillText("HP: " + Math.ceil(enemy.hp), enemy.x - camera.x, enemy.y - camera.y - 10);
         }
 
-        let img = assets.player[`${player.direction}_${player.frameNum}`];
-        if (img && img.complete) { ctx.drawImage(img, player.x - camera.x, player.y - camera.y, player.width, player.height); }
+        const textureKey = getPlayerTextureKey(player.job || 'Warrior', player.direction, 1);
+        const img = assets.player[textureKey];
+        if (img && img.complete) {
+            ctx.drawImage(img, player.x - camera.x, player.y - camera.y, player.width, player.height);
+        }
 
         if (player.isDefending) { ctx.strokeStyle = '#3498db'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(player.x + 24 - camera.x, player.y + 24 - camera.y, 30, 0, Math.PI * 2); ctx.stroke(); }
         if (player.isAttacking) { ctx.strokeStyle = player.slashColor; ctx.lineWidth = 4; ctx.strokeRect(player.x - 10 - camera.x, player.y - 10 - camera.y, player.width + 20, player.height + 20); }
