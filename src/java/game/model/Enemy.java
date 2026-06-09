@@ -1,23 +1,19 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package game.model;
 
 import java.util.Random;
-
-/**
- *
- * @author GU605MV
- */
 public class Enemy extends Character {
+    private String nama;
+    private int hp;
+    private int damage;
     private int dropExp;
     private int x;
     private int y;
     private Item dropItem;
 
     public Enemy(String goblin, int i, int i0) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        this.nama = nama;
+        this.hp = hp;
+        this.damage = damage;
     }
     
     public Item dropLoot() {
@@ -52,6 +48,7 @@ public class Enemy extends Character {
     }
 
     // enemy attack player
+    @Override
     public void attack(Character target) {
 
         int damage = calculateDamage();

@@ -11,7 +11,7 @@ package game.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Inventory {
+public class Inventory implements java.io.Serializable {
     private List<Item> items = new ArrayList<>();
     private int maxCap = 10;
 

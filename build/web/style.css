@@ -1,11 +1,3 @@
-/*
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/Other/CascadeStyleSheet.css to edit this template
-*/
-/* 
-    Created on : May 11, 2026, 3:04:49 PM
-    Author     : GU605MV
-*/
 :root { 
     --primary: #2c3e50; 
     --accent: #e67e22; 
@@ -47,9 +39,12 @@ canvas {
     align-items: center; 
     background: rgba(0,0,0,0.85); 
     z-index: 10; 
+    pointer-events: auto; /* Memastikan overlay bisa menerima klik mouse */
 }
 
-.active { display: flex; }
+.active { 
+    display: flex; 
+}
 
 .game-title {
     color: var(--accent);
@@ -58,7 +53,7 @@ canvas {
     margin-bottom: 30px;
 }
 
-/* Navigasi Keyboard */
+/* Navigasi / Efek Pilih */
 .selected { 
     border: 4px solid white !important; 
     background: var(--accent) !important; 
@@ -76,6 +71,12 @@ canvas {
     width: 200px; 
     text-align: center; 
     font-weight: bold;
+    user-select: none;
+}
+
+.menu-btn:hover, .job-card:hover {
+    background: #555;
+    border-color: #f1c40f;
 }
 
 .settings-box { 
@@ -90,12 +91,13 @@ canvas {
 #hud { 
     position: absolute; 
     top: 10px; left: 10px; 
-    background: rgba(0,0,0,0.6); 
+    background: rgba(0,0,0,0.7); 
     padding: 15px; 
     border-radius: 5px; 
     display: none; 
     pointer-events: none; 
     border: 1px solid var(--accent); 
+    z-index: 5;
 }
 
 .hp-bar { 

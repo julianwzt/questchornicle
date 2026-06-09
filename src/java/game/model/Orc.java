@@ -11,18 +11,7 @@ package game.model;
 public class Orc extends Enemy {
     public Orc(int x, int y) {
         super("Orc", 150, 20, x, y);
-        setDropItem(
-            new Item() {
-                @Override
-                public void use(Character target) {
-                    target.heal(50);
-                }
-                @Override
-                public String getEffect() {
-                    return "Restore 50 HP";
-                }
-            }
-        );
+        setDropItem(new Potion(50));
     }
 
     @Override

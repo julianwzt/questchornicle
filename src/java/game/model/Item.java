@@ -8,7 +8,7 @@ package game.model;
  *
  * @author GU605MV
  */
-public abstract class Item {
+public abstract class Item implements java.io.Serializable {
     protected String id;
     protected String name;
     protected String rarity;

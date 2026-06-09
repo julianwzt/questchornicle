@@ -14,6 +14,7 @@ public class Hero extends Character {
     public Inventory inventory;
     private int x;
     private int y;
+    public String job;
 
     public Hero(String nama) {
 
@@ -34,7 +35,23 @@ public class Hero extends Character {
     public int getY() {
         return y;
     }
-
+    @Override
+    public void setHp(int hp) {
+        this.hp = hp; 
+    }
+    
+    public void setMaxHp(int maxHp) {
+        this.maxHp = maxHp; 
+    }
+    
+    public void setX(int x) {
+        this.x = x; 
+    }
+    
+    public void setY(int y) {
+        this.y = y; 
+    }
+    
     public void move(int dx, int dy) {
 
         this.x += dx;

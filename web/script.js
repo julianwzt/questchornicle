@@ -21,39 +21,70 @@ loadAsset('tiles', '4', 'res/tiles/tree.png');
 
 loadAsset('objects', 'sword', 'res/objects/sword_normal.png');
 loadAsset('objects', 'potion', 'res/objects/potion_red.png');
-loadAsset('objects', 'chest', 'res/objects/chest.png'); // Fallback akan handle kalau gak ada
+loadAsset('objects', 'chest', 'res/objects/chest.png');
 
 // --- 2. TILEMAP SYSTEM ---
-const TILE_SIZE = 48; 
+const TILE_SIZE = 48;
+let currentMapIndex = 0;
 
-// Map 20x25 (960x1200) — rapi, variatif, gak kosong
 const mapGrid = [
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,4,4,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,4,4,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,4,4,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,4,4,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    
 ];
 
-const MAP_WIDTH = mapGrid[0].length * TILE_SIZE;  // 1200
-const MAP_HEIGHT = mapGrid.length * TILE_SIZE;      // 960
+const maps = [
+    // === MAP 1 (Gunakan grid asli kamu) ===
+    [
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,4,4,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,4,4,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,4,4,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,4,4,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    ],
+    // === MAP 2 (Buat variasi rintangan baru) ===
+    [
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,4,4,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,4,4,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        
+    ],
+    // === MAP 3, 4, dan 5 ===
+    // Kamu tinggal menambahkan grid map ke-3, ke-4, dan ke-5 di bawah ini dipisahkan tanda koma
+];
 
-// --- OBJECTS ON MAP ---
+const MAP_WIDTH = maps[0][0].length * TILE_SIZE;  
+const MAP_HEIGHT = maps[0].length * TILE_SIZE;    
+
 const chests = [
     { x: 2 * TILE_SIZE, y: 2 * TILE_SIZE, opened: false, item: 'potion' },
     { x: 22 * TILE_SIZE, y: 2 * TILE_SIZE, opened: false, item: 'sword' },
@@ -66,7 +97,6 @@ const spawnAreas = [
     { x: 18 * TILE_SIZE, y: 13 * TILE_SIZE, w: 5 * TILE_SIZE, h: 4 * TILE_SIZE, label: 'Spawn B' }
 ];
 
-// --- CAMERA SYSTEM ---
 const camera = { x: 0, y: 0 };
 
 function updateCamera() {
@@ -77,9 +107,6 @@ function updateCamera() {
     if (camera.y < 0) camera.y = 0;
     if (camera.x + canvas.width > MAP_WIDTH) camera.x = MAP_WIDTH - canvas.width;
     if (camera.y + canvas.height > MAP_HEIGHT) camera.y = MAP_HEIGHT - canvas.height;
-
-    if (MAP_WIDTH < canvas.width) camera.x = -(canvas.width - MAP_WIDTH) / 2;
-    if (MAP_HEIGHT < canvas.height) camera.y = -(canvas.height - MAP_HEIGHT) / 2;
 }
 
 // --- 3. ENTITAS GAME ---
@@ -90,37 +117,21 @@ const floatingTexts = [];
 let stageFinished = false;
 
 let enemy = {
-    x: 19 * TILE_SIZE,
-    y: 7 * TILE_SIZE,
-    width: 40,
-    height: 48,
-    hp: 200,
-    maxHp: 200,
-    damage: 10,
-    speed: 1,
-    alive: true,
-    attackCooldown: 0
+    x: 19 * TILE_SIZE, y: 7 * TILE_SIZE,
+    width: 40, height: 48,
+    hp: 200, maxHp: 200,
+    damage: 10, speed: 1.2,
+    alive: true, attackCooldown: 0
 };
 
 let player = { 
     x: 3 * TILE_SIZE, y: 3 * TILE_SIZE, 
-    speed: 2.5,
-    width: TILE_SIZE, 
-    height: TILE_SIZE,
-    job: '', 
-    hp: 100, 
-    maxHp: 100, 
-    isAttacking: false,
-    direction: 'down', 
-    frameCounter: 0, 
-    frameNum: 1, 
-    baseAtk: 10, 
-    baseDef: 5, 
-    slashColor: '#f1c40f',
-    resName: '', 
-    resVal: 0, 
-    resMax: 100,
-    isDefending: false,
+    speed: 2.5, width: TILE_SIZE, height: TILE_SIZE,
+    job: '', hp: 100, maxHp: 100, 
+    isAttacking: false, direction: 'down', 
+    frameCounter: 0, frameNum: 1, 
+    baseAtk: 10, baseDef: 5, 
+    slashColor: '#f1c40f', resName: '', resVal: 0, resMax: 100, isDefending: false,
 
     setJob(jobName) {
         this.job = jobName;
@@ -139,23 +150,18 @@ let player = {
 
     skill1() {
         if (this.job === 'Warrior' && this.resVal >= 30) {
-            this.resVal -= 30;
-            this.performMelee(this.baseAtk * 2.5, '#e74c3c');
+            this.resVal -= 30; this.performMelee(this.baseAtk * 2.5, '#e74c3c');
         } else if (this.job === 'Mage' && this.resVal >= 10) {
-            this.resVal -= 10;
-            spawnProjectile(this.x, this.y, this.direction, '#3498db', 25);
+            this.resVal -= 10; spawnProjectile(this.x, this.y, this.direction, '#3498db', 25);
         } else if (this.job === 'Archer' && this.resVal >= 1) {
-            this.resVal -= 1;
-            spawnProjectile(this.x, this.y, this.direction, '#bdc3c7', 15);
+            this.resVal -= 1; spawnProjectile(this.x, this.y, this.direction, '#bdc3c7', 15);
         }
         updateHUD();
     },
 
     skill2() {
         if (this.job === 'Warrior' && this.resVal >= 20) {
-            this.resVal -= 20;
-            this.isDefending = true;
-            setTimeout(() => this.isDefending = false, 2000);
+            this.resVal -= 20; this.isDefending = true; setTimeout(() => this.isDefending = false, 2000);
         } else if (this.job === 'Mage') {
             this.resVal = Math.min(this.resMax, this.resVal + 30);
         } else if (this.job === 'Archer' && this.resVal >= 3) {
@@ -171,18 +177,12 @@ let player = {
         this.isAttacking = true;
         this.slashColor = color;
 
-        let atkBox = {
-            x: this.x - 20,
-            y: this.y - 20,
-            size: this.width + 40
-        };
+        let atkBox = { x: this.x - 20, y: this.y - 20, size: this.width + 40 };
 
-        // Cek collision dengan chest (buka chest)
         chests.forEach(chest => {
             if (!chest.opened && checkCollisionBox(atkBox, { x: chest.x, y: chest.y, width: TILE_SIZE, height: TILE_SIZE })) {
                 chest.opened = true;
                 showFloatingDamage(chest.x, chest.y, 'ITEM!', '#f1c40f');
-                // Bonus efek
                 if (chest.item === 'potion') {
                     this.hp = Math.min(this.maxHp, this.hp + 30);
                     showFloatingDamage(this.x, this.y, '+30 HP', '#2ecc71');
@@ -194,18 +194,12 @@ let player = {
         if (enemy.alive && checkCollisionBox(atkBox, enemy)) {
             enemy.hp -= damage;
             showFloatingDamage(enemy.x, enemy.y, damage, '#f1c40f');
-
-            if (this.job === 'Warrior') {
-                this.resVal = Math.min(this.resMax, this.resVal + 15);
-            }
+            if (this.job === 'Warrior') this.resVal = Math.min(this.resMax, this.resVal + 15);
 
             if (enemy.hp <= 0) {
-                enemy.hp = 0;
-                enemy.alive = false;
-                stageClear();
+                enemy.hp = 0; enemy.alive = false; stageClear();
             }
         }
-
         updateHUD();
         setTimeout(() => { this.isAttacking = false; }, 150);
     }
@@ -222,7 +216,9 @@ function spawnProjectile(x, y, dir, color, damage) {
 
 const keys = {};
 
-// --- 4. SISTEM NAVIGASI & INTERAKSI UI ---
+// --- 4. SISTEM NAVIGASI UI & MULTI-SLOT ---
+let pendingAction = ''; 
+
 function showScreen(id) { 
     document.querySelectorAll('.overlay').forEach(el => el.classList.remove('active')); 
     const targetOverlay = document.getElementById(id);
@@ -237,8 +233,7 @@ function resetMenuSelection(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
     container.querySelectorAll('.menu-btn, .job-card').forEach(el => el.classList.remove('selected'));
-    const visibleItems = Array.from(container.querySelectorAll('.menu-btn, .job-card'))
-                              .filter(el => el.style.display !== 'none');
+    const visibleItems = Array.from(container.querySelectorAll('.menu-btn, .job-card')).filter(el => el.style.display !== 'none');
     if (visibleItems.length > 0) visibleItems[0].classList.add('selected');
 }
 
@@ -259,9 +254,7 @@ function closeSettings() {
         document.querySelectorAll('.overlay').forEach(el => el.classList.remove('active'));
         gameState = 'PLAYING';
         requestAnimationFrame(gameLoop);
-    } else {
-        showScreen('main-menu');
-    }
+    } else { showScreen('main-menu'); }
 }
 
 function gameOver() {
@@ -272,14 +265,39 @@ function gameOver() {
 
 function stageClear() {
     if (stageFinished) return;
-    stageFinished = true;
-    gameState = 'STAGE-CLEAR';
-    ctx.fillStyle = 'rgba(0,0,0,0.7)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'yellow';
-    ctx.font = 'bold 50px Arial';
-    ctx.fillText('STAGE CLEAR!', canvas.width / 2 - 180, canvas.height / 2);
-    setTimeout(() => { backToMainMenu(); }, 2000);
+
+    // JIKA MASIH ADA MAP BERIKUTNYA (Belum mencapai map terakhir)
+    if (currentMapIndex < maps.length - 1) {
+        alert(`Musuh Kalah! Selamat, kamu berhasil melewati Map ${currentMapIndex + 1}.\nBersiap masuk ke Map ${currentMapIndex + 2}!`);
+        
+        currentMapIndex++; // Naikkan nomor map saat ini
+
+        // Reset posisi karakter kembali ke area awal di map yang baru
+        player.x = 3 * TILE_SIZE; 
+        player.y = 3 * TILE_SIZE;
+
+        // Bangkitkan kembali musuh di koordinat spawn baru untuk map ini
+        enemy.x = 19 * TILE_SIZE; 
+        enemy.y = 7 * TILE_SIZE;
+        enemy.hp = enemy.maxHp + (currentMapIndex * 50); // Musuh makin map baru makin kuat darahnya
+        enemy.alive = true;
+
+        // Bersihkan sisa-sisa tembakan dan kotak harta karun map lama
+        projectiles = []; 
+        chests.forEach(c => c.opened = false);
+        
+        updateHUD();
+    } else {
+        // JIKA SUDAH BERHASIL MENYELESAIKAN MAP KE-5 (Map Terakhir)
+        stageFinished = true;
+        gameState = 'STAGE-CLEAR';
+        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'yellow';
+        ctx.font = 'bold 50px Arial';
+        ctx.fillText('GAME TAMAT!', canvas.width / 2 - 160, canvas.height / 2);
+        setTimeout(() => { backToMainMenu(); }, 2500);
+    }
 }
 
 function backToMainMenu() {
@@ -289,21 +307,13 @@ function backToMainMenu() {
 }
 
 function startGame(job) {
-    isGameStarted = true; 
-    stageFinished = false;
+    isGameStarted = true; stageFinished = false;
     player.setJob(job);
-    player.x = 3 * TILE_SIZE; 
-    player.y = 3 * TILE_SIZE;
+    player.x = 3 * TILE_SIZE; player.y = 3 * TILE_SIZE;
 
-    // Reset enemy ke spawn area A
-    enemy.x = 19 * TILE_SIZE;
-    enemy.y = 7 * TILE_SIZE;
-    enemy.hp = enemy.maxHp; 
-    enemy.alive = true; 
-    projectiles = [];
-
-    // Reset chests
-    chests.forEach(c => c.opened = false);
+    enemy.x = 19 * TILE_SIZE; enemy.y = 7 * TILE_SIZE;
+    enemy.hp = enemy.maxHp; enemy.alive = true; 
+    projectiles = []; chests.forEach(c => c.opened = false);
 
     document.getElementById('job-val').innerText = job; 
     document.getElementById('hud').style.display = 'block';
@@ -312,6 +322,93 @@ function startGame(job) {
     document.querySelectorAll('.overlay').forEach(el => el.classList.remove('active'));
     gameState = 'PLAYING';
     requestAnimationFrame(gameLoop);
+}
+
+// --- PERBAIKAN: FUNGSI SAVE/LOAD VIA MOUSE & KEYBOARD ---
+function prepareSlot(action) {
+    pendingAction = action;
+    showScreen('slot-menu');
+}
+
+function cancelSlotSelection() {
+    if (pendingAction === 'save') showScreen('settings-menu');
+    else showScreen('main-menu');
+}
+
+function performSlotAction(slotId) {
+    console.log("Slot dipilih:", slotId, "Aksi:", pendingAction);
+    if (pendingAction === 'save') {
+        saveGameData(slotId);
+    } else if (pendingAction === 'load') {
+        loadGameData(slotId);
+    }
+}
+
+function saveGameData(slotId) {
+    let payload = `action=save&slot_id=${slotId}&x=${player.x}&y=${player.y}&hp=${player.hp}&job=${player.job}`;
+    
+    fetch('GameServlet', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: payload
+    })
+    .then(res => res.text()) // Ambil teks mentah agar jika Java error langsung terbaca
+    .then(text => {
+        try {
+            let data = JSON.parse(text);
+            alert("Progres Berhasil Disimpan di Slot " + slotId + "!");
+            showScreen('settings-menu');
+        } catch (e) {
+            alert("SERVER ERROR! Gagal mengurai data save.\nPastikan XAMPP & Driver JDBC MySQL aktif.");
+            console.error("Raw response:", text);
+        }
+    })
+    .catch(err => alert("Gagal koneksi ke server: " + err));
+}
+
+function loadGameData(slotId) {
+    fetch('GameServlet', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `action=load&slot_id=${slotId}`
+    })
+    .then(res => res.text())
+    .then(text => {
+        try {
+            let data = JSON.parse(text);
+            
+            // PROTEKSI TOTAL: Jika status data kosong, atau struktur objek player tidak valid
+            if (data.status === 'empty' || !data.player || !data.player.job) {
+                alert("Slot " + slotId + " masih kosong! Silakan pilih slot lain atau mulai Game Baru.");
+                showScreen('main-menu'); // Tendang kembali ke menu utama secara aman
+                return; // Kunci total di sini agar game loop tidak berjalan!
+            }
+
+            // Game hanya akan berjalan jika data dari database lolos verifikasi di atas
+            isGameStarted = true; stageFinished = false;
+            player.setJob(data.player.job);
+            player.x = data.player.x; 
+            player.y = data.player.y; 
+            player.hp = data.player.hp;
+            
+            enemy.x = 19 * TILE_SIZE; enemy.y = 7 * TILE_SIZE; enemy.hp = enemy.maxHp; enemy.alive = true;
+            projectiles = []; chests.forEach(c => c.opened = false);
+
+            document.getElementById('job-val').innerText = player.job; 
+            document.getElementById('hud').style.display = 'block';
+            updateHUD(); 
+
+            document.querySelectorAll('.overlay').forEach(el => el.classList.remove('active'));
+            gameState = 'PLAYING';
+            requestAnimationFrame(gameLoop);
+            
+            alert("Slot " + slotId + " Berhasil Dimuat!");
+        } catch (e) {
+            alert("SERVER ERROR! Gagal memproses data load.");
+            console.error("Raw response:", text);
+        }
+    })
+    .catch(err => alert("Gagal koneksi ke server: " + err));
 }
 
 // --- 5. KEYBOARD LISTENER ---
@@ -324,26 +421,19 @@ window.addEventListener('keydown', e => {
 
     const activeOverlay = document.querySelector('.overlay.active');
     if (activeOverlay && gameState.includes('MENU')) {
-        const items = Array.from(activeOverlay.querySelectorAll('.menu-btn, .job-card'))
-                           .filter(el => el.style.display !== 'none');
-
+        const items = Array.from(activeOverlay.querySelectorAll('.menu-btn, .job-card')).filter(el => el.style.display !== 'none');
         if (items.length > 0) {
             let index = items.findIndex(el => el.classList.contains('selected'));
             if (index === -1) index = 0;
 
             if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { 
-                e.preventDefault();
-                items[index].classList.remove('selected'); 
-                index = (index + 1) % items.length; 
-                items[index].classList.add('selected'); 
+                e.preventDefault(); items[index].classList.remove('selected'); 
+                index = (index + 1) % items.length; items[index].classList.add('selected'); 
             } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { 
-                e.preventDefault();
-                items[index].classList.remove('selected'); 
-                index = (index - 1 + items.length) % items.length; 
-                items[index].classList.add('selected'); 
+                e.preventDefault(); items[index].classList.remove('selected'); 
+                index = (index - 1 + items.length) % items.length; items[index].classList.add('selected'); 
             } else if (e.key === 'Enter') { 
-                e.preventDefault();
-                items[index].click(); 
+                e.preventDefault(); items[index].click(); 
             }
         }
     }
@@ -355,7 +445,6 @@ window.addEventListener('keydown', e => {
         if (e.code === 'Digit2') player.skill2(); 
     }
 });
-
 window.addEventListener('keyup', e => keys[e.code] = false);
 
 // --- 6. LOGIKA GAME ENGINE ---
@@ -368,52 +457,35 @@ function updateHUD() {
 }
 
 function checkCollision(x, y, w, h, target) {
-    return (
-        x < target.x + target.width &&
-        x + w > target.x &&
-        y < target.y + target.height &&
-        y + h > target.y
-    );
+    return (x < target.x + target.width && x + w > target.x && y < target.y + target.height && y + h > target.y);
 }
-
 function checkCollisionBox(box1, box2) {
-    return (
-        box1.x < box2.x + box2.width &&
-        box1.x + box1.size > box2.x &&
-        box1.y < box2.y + box2.height &&
-        box1.y + box1.size > box2.y
-    );
+    return (box1.x < box2.x + box2.width && box1.x + box1.size > box2.x && box1.y < box2.y + box2.height && box1.y + box1.size > box2.y);
 }
-
 function isSolid(x, y) {
-    let col = Math.floor(x / TILE_SIZE); 
-    let row = Math.floor(y / TILE_SIZE);
-    if (row < 0 || row >= mapGrid.length || col < 0 || col >= mapGrid[0].length) return true;
-    let tileId = mapGrid[row][col]; 
-    // 1=wall, 2=water, 4=tree adalah solid. 0=grass, 3=earth bisa dilewati.
+    let col = Math.floor(x / TILE_SIZE), row = Math.floor(y / TILE_SIZE);
+    // Mengambil map yang sedang aktif saat ini
+    let activeMap = maps[currentMapIndex]; 
+    if (row < 0 || row >= activeMap.length || col < 0 || col >= activeMap[0].length) return true;
+    let tileId = activeMap[row][col]; 
     return tileId === 1 || tileId === 2 || tileId === 4; 
 }
 
 function drawMap() {
-    let startCol = Math.floor(camera.x / TILE_SIZE);
-    let endCol = startCol + (canvas.width / TILE_SIZE) + 1;
-    let startRow = Math.floor(camera.y / TILE_SIZE);
-    let endRow = startRow + (canvas.height / TILE_SIZE) + 1;
-
-    startCol = Math.max(0, startCol);
-    startRow = Math.max(0, startRow);
-    endCol = Math.min(mapGrid[0].length, endCol);
-    endRow = Math.min(mapGrid.length, endRow);
+    let activeMap = maps[currentMapIndex];
+    let startCol = Math.max(0, Math.floor(camera.x / TILE_SIZE));
+    let endCol = Math.min(activeMap[0].length, startCol + (canvas.width / TILE_SIZE) + 1);
+    let startRow = Math.max(0, Math.floor(camera.y / TILE_SIZE));
+    let endRow = Math.min(activeMap.length, startRow + (canvas.height / TILE_SIZE) + 1);
 
     for (let row = startRow; row < endRow; row++) {
         for (let col = startCol; col < endCol; col++) {
-            let img = assets.tiles[mapGrid[row][col]];
+            let img = assets.tiles[activeMap[row][col]];
             if (img && img.complete) {
                 ctx.drawImage(img, col * TILE_SIZE - camera.x, row * TILE_SIZE - camera.y, TILE_SIZE, TILE_SIZE);
             } else {
-                // Fallback warna kalau asset belum load
                 const colors = ['#2ecc71', '#7f8c8d', '#3498db', '#d35400', '#27ae60'];
-                ctx.fillStyle = colors[mapGrid[row][col]] || '#000';
+                ctx.fillStyle = colors[activeMap[row][col]] || '#000';
                 ctx.fillRect(col * TILE_SIZE - camera.x, row * TILE_SIZE - camera.y, TILE_SIZE, TILE_SIZE);
             }
         }
@@ -422,230 +494,141 @@ function drawMap() {
 
 function drawChests() {
     chests.forEach(chest => {
-        let cx = chest.x - camera.x;
-        let cy = chest.y - camera.y;
-
-        // Hanya draw kalau dalam viewport
+        let cx = chest.x - camera.x, cy = chest.y - camera.y;
         if (cx + TILE_SIZE < 0 || cx > canvas.width || cy + TILE_SIZE < 0 || cy > canvas.height) return;
-
         let img = assets.objects['chest'];
-        if (img && img.complete && !chest.opened) {
-            ctx.drawImage(img, cx, cy, TILE_SIZE, TILE_SIZE);
-        } else {
-            // Fallback: kotak kuning untuk chest tertutup, abu-abu untuk terbuka
+        if (img && img.complete && !chest.opened) { ctx.drawImage(img, cx, cy, TILE_SIZE, TILE_SIZE); } 
+        else {
             ctx.fillStyle = chest.opened ? '#7f8c8d' : '#f1c40f';
             ctx.fillRect(cx + 8, cy + 8, TILE_SIZE - 16, TILE_SIZE - 16);
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(cx + 8, cy + 8, TILE_SIZE - 16, TILE_SIZE - 16);
-
-            if (!chest.opened) {
-                ctx.fillStyle = '#000';
-                ctx.font = 'bold 12px Arial';
-                ctx.fillText('?', cx + 20, cy + 32);
-            }
         }
     });
 }
 
 function drawSpawnAreas() {
     spawnAreas.forEach(area => {
-        let ax = area.x - camera.x;
-        let ay = area.y - camera.y;
-
-        // Culling
+        let ax = area.x - camera.x, ay = area.y - camera.y;
         if (ax + area.w < 0 || ax > canvas.width || ay + area.h < 0 || ay > canvas.height) return;
-
-        // Area transparan ungu
-        ctx.fillStyle = 'rgba(155, 89, 182, 0.25)';
-        ctx.fillRect(ax, ay, area.w, area.h);
-        ctx.strokeStyle = 'rgba(155, 89, 182, 0.6)';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(ax, ay, area.w, area.h);
-
-        // Label
-        ctx.fillStyle = 'rgba(255,255,255,0.8)';
-        ctx.font = 'bold 12px Arial';
-        ctx.fillText(area.label, ax + 10, ay + 20);
+        ctx.fillStyle = 'rgba(155, 89, 182, 0.25)'; ctx.fillRect(ax, ay, area.w, area.h);
+        ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = 'bold 12px Arial'; ctx.fillText(area.label, ax + 10, ay + 20);
     });
 }
 
 function showFloatingDamage(x, y, damage, color) {
-    floatingTexts.push({
-        x: x,
-        y: y,
-        text: typeof damage === 'number' ? '-' + Math.floor(damage) : damage,
-        color: color,
-        life: 60
-    });
+    floatingTexts.push({ x: x, y: y, text: typeof damage === 'number' ? '-' + Math.floor(damage) : damage, color: color, life: 60 });
 }
 
+// --- PERBAIKAN: MUSUH CUMAN GERAK KALO MASUK POV & GAK TEMBUS AIR/POHON ---
 function updateEnemy() {
     if (!enemy.alive) return;
+    
+    // Pengecekan POV Kamera
+    let isInPOV = (
+        enemy.x + enemy.width > camera.x && 
+        enemy.x < camera.x + canvas.width && 
+        enemy.y + enemy.height > camera.y && 
+        enemy.y < camera.y + canvas.height
+    );
 
-    let dx = player.x - enemy.x;
-    let dy = player.y - enemy.y;
-    let distance = Math.sqrt(dx * dx + dy * dy);
+    if (isInPOV) {
+        let dx = player.x - enemy.x;
+        let dy = player.y - enemy.y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance > 5) { 
+            let moveX = (dx / distance) * enemy.speed;
+            let moveY = (dy / distance) * enemy.speed;
+            
+            let newX = enemy.x + moveX;
+            let newY = enemy.y + moveY;
 
-    if (distance > 5) {
-        enemy.x += (dx / distance) * enemy.speed;
-        enemy.y += (dy / distance) * enemy.speed;
-    }
-
-    if (distance < 50) {
-        if (enemy.attackCooldown <= 0) {
+            // Cek 4 Kordinat Sudut untuk Sumbu X (Solid/Tembus)
+            if (!isSolid(newX, enemy.y) && !isSolid(newX + enemy.width, enemy.y) &&
+                !isSolid(newX, enemy.y + enemy.height) && !isSolid(newX + enemy.width, enemy.y + enemy.height)) {
+                enemy.x = newX; 
+            }
+            
+            // Cek 4 Kordinat Sudut untuk Sumbu Y (Solid/Tembus)
+            if (!isSolid(enemy.x, newY) && !isSolid(enemy.x + enemy.width, newY) &&
+                !isSolid(enemy.x, newY + enemy.height) && !isSolid(enemy.x + enemy.width, newY + enemy.height)) {
+                enemy.y = newY; 
+            }
+        }
+        
+        // Serang Player
+        if (distance < 50 && enemy.attackCooldown <= 0) {
             let damage = enemy.damage;
             if (player.isDefending) damage *= 0.3;
-
             player.hp -= damage;
-            if (player.hp < 0) {
-                player.hp = 0;
-                gameOver();
-            }
+            if (player.hp < 0) { player.hp = 0; gameOver(); }
             showFloatingDamage(player.x, player.y, damage, 'red');
-            updateHUD();
-            enemy.attackCooldown = 60;
+            updateHUD(); enemy.attackCooldown = 60;
         }
     }
-
     if (enemy.attackCooldown > 0) enemy.attackCooldown--;
 }
 
 function updatePlayer() {
-    let isMoving = false; 
-    let newX = player.x; 
-    let newY = player.y;
+    let isMoving = false, newX = player.x, newY = player.y;
+    if (keys['ArrowUp'] || keys['KeyW']) { newY -= player.speed; player.direction = 'up'; isMoving = true; } 
+    else if (keys['ArrowDown'] || keys['KeyS']) { newY += player.speed; player.direction = 'down'; isMoving = true; }
+    if (keys['ArrowLeft'] || keys['KeyA']) { newX -= player.speed; player.direction = 'left'; isMoving = true; } 
+    else if (keys['ArrowRight'] || keys['KeyD']) { newX += player.speed; player.direction = 'right'; isMoving = true; }
 
-    if (keys['ArrowUp'] || keys['KeyW']) { 
-        newY -= player.speed; player.direction = 'up'; isMoving = true; 
-    } else if (keys['ArrowDown'] || keys['KeyS']) { 
-        newY += player.speed; player.direction = 'down'; isMoving = true; 
+    if (!isSolid(newX + 10, newY + 30) && !isSolid(newX + player.width - 10, newY + 30) &&
+        !isSolid(newX + 10, newY + player.height) && !isSolid(newX + player.width - 10, newY + player.height)) {
+        player.x = newX; player.y = newY;
     }
 
-    if (keys['ArrowLeft'] || keys['KeyA']) { 
-        newX -= player.speed; player.direction = 'left'; isMoving = true; 
-    } else if (keys['ArrowRight'] || keys['KeyD']) { 
-        newX += player.speed; player.direction = 'right'; isMoving = true; 
-    }
-
-    // Collision detection dengan tembok & obstacle (4-point check)
-    if (!isSolid(newX + 10, newY + 30) && 
-        !isSolid(newX + player.width - 10, newY + 30) &&
-        !isSolid(newX + 10, newY + player.height) && 
-        !isSolid(newX + player.width - 10, newY + player.height)) {
-        player.x = newX; 
-        player.y = newY;
-    }
-
-    // Boundary check: player tidak boleh keluar map
-    if (player.x < 0) player.x = 0;
-    if (player.y < 0) player.y = 0;
+    if (player.x < 0) player.x = 0; if (player.y < 0) player.y = 0;
     if (player.x + player.width > MAP_WIDTH) player.x = MAP_WIDTH - player.width;
     if (player.y + player.height > MAP_HEIGHT) player.y = MAP_HEIGHT - player.height;
 
     if (isMoving) { 
         player.frameCounter++; 
-        if (player.frameCounter > 10) { 
-            player.frameNum = player.frameNum === 1 ? 2 : 1; 
-            player.frameCounter = 0; 
-        } 
-    } else { 
-        player.frameNum = 1; 
-    }
+        if (player.frameCounter > 10) { player.frameNum = player.frameNum === 1 ? 2 : 1; player.frameCounter = 0; } 
+    } else { player.frameNum = 1; }
 }
 
 function updateProjectiles() {
     for (let i = projectiles.length - 1; i >= 0; i--) {
-        let p = projectiles[i]; 
-        p.x += p.vx; 
-        p.y += p.vy;
-
-        if (isSolid(p.x, p.y)) { 
-            projectiles.splice(i, 1); 
-            continue; 
-        }
-
+        let p = projectiles[i]; p.x += p.vx; p.y += p.vy;
+        if (isSolid(p.x, p.y)) { projectiles.splice(i, 1); continue; }
         if (enemy.alive && checkCollision(p.x, p.y, p.size, p.size, enemy)) {
-            enemy.hp -= p.damage;
-            showFloatingDamage(enemy.x, enemy.y, p.damage, '#3498db');
-
-            if (enemy.hp <= 0) {
-                enemy.hp = 0;
-                enemy.alive = false;
-                stageClear();
-            }
-
-            projectiles.splice(i, 1); 
-            updateHUD();
+            enemy.hp -= p.damage; showFloatingDamage(enemy.x, enemy.y, p.damage, '#3498db');
+            if (enemy.hp <= 0) { enemy.hp = 0; enemy.alive = false; stageClear(); }
+            projectiles.splice(i, 1); updateHUD();
         }
     }
 }
 
 function gameLoop() {
     if (gameState === 'PLAYING') {
-        updatePlayer();
-        updateProjectiles();
-        updateEnemy();
-        updateCamera();
-
+        updatePlayer(); updateProjectiles(); updateEnemy(); updateCamera();
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawMap();
-        drawSpawnAreas();
-        drawChests();
+        drawMap(); drawSpawnAreas(); drawChests();
 
-        // Draw projectiles
-        projectiles.forEach(p => {
-            ctx.fillStyle = p.color;
-            ctx.beginPath();
-            ctx.arc(p.x - camera.x, p.y - camera.y, p.size, 0, Math.PI * 2);
-            ctx.fill();
-        });
+        projectiles.forEach(p => { ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x - camera.x, p.y - camera.y, p.size, 0, Math.PI * 2); ctx.fill(); });
 
-        // Draw floating texts
         for (let i = floatingTexts.length - 1; i >= 0; i--) {
-            let text = floatingTexts[i];
-            ctx.fillStyle = text.color;
-            ctx.font = '20px Arial';
+            let text = floatingTexts[i]; ctx.fillStyle = text.color; ctx.font = '20px Arial';
             ctx.fillText(text.text, text.x - camera.x, text.y - camera.y);
-            text.y -= 1;
-            text.life--;
-            if (text.life <= 0) floatingTexts.splice(i, 1);
+            text.y -= 1; text.life--; if (text.life <= 0) floatingTexts.splice(i, 1);
         }
 
-        // Draw enemy
         if (enemy.alive) {
-            ctx.fillStyle = 'red';
-            ctx.fillRect(enemy.x - camera.x, enemy.y - camera.y, enemy.width, enemy.height);
-            ctx.fillStyle = 'white'; 
-            ctx.font = "bold 14px sans-serif";
-            ctx.fillText("HP: " + Math.ceil(enemy.hp), enemy.x - camera.x, enemy.y - camera.y - 10);
+            ctx.fillStyle = 'red'; ctx.fillRect(enemy.x - camera.x, enemy.y - camera.y, enemy.width, enemy.height);
+            ctx.fillStyle = 'white'; ctx.font = "bold 14px sans-serif"; ctx.fillText("HP: " + Math.ceil(enemy.hp), enemy.x - camera.x, enemy.y - camera.y - 10);
         }
 
-        // Draw player
         let img = assets.player[`${player.direction}_${player.frameNum}`];
-        if (img && img.complete) {
-            ctx.drawImage(img, player.x - camera.x, player.y - camera.y, player.width, player.height);
-        }
+        if (img && img.complete) { ctx.drawImage(img, player.x - camera.x, player.y - camera.y, player.width, player.height); }
 
-        // Defend effect
-        if (player.isDefending) {
-            ctx.strokeStyle = '#3498db'; 
-            ctx.lineWidth = 3;
-            ctx.beginPath(); 
-            ctx.arc(player.x + 24 - camera.x, player.y + 24 - camera.y, 30, 0, Math.PI * 2); 
-            ctx.stroke();
-        }
-
-        // Attack effect
-        if (player.isAttacking) {
-            ctx.strokeStyle = player.slashColor; 
-            ctx.lineWidth = 4;
-            ctx.strokeRect(player.x - 10 - camera.x, player.y - 10 - camera.y, player.width + 20, player.height + 20);
-        }
+        if (player.isDefending) { ctx.strokeStyle = '#3498db'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(player.x + 24 - camera.x, player.y + 24 - camera.y, 30, 0, Math.PI * 2); ctx.stroke(); }
+        if (player.isAttacking) { ctx.strokeStyle = player.slashColor; ctx.lineWidth = 4; ctx.strokeRect(player.x - 10 - camera.x, player.y - 10 - camera.y, player.width + 20, player.height + 20); }
 
         requestAnimationFrame(gameLoop);
     }
 }
 
-// Jalankan engine loop pertama kali
 gameLoop();

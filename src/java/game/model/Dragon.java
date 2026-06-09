@@ -12,19 +12,7 @@ public class Dragon extends Enemy {
 
     public Dragon(int x, int y) {
         super("Dragon", 400, 40, x, y);
-        setDropItem(
-            new Item() {
-                @Override
-                public void use(Character target) {
-
-                    target.heal(100);
-                }
-                @Override
-                public String getEffect() {
-                    return "Restore 100 HP";
-                }
-            }
-        );
+        setDropItem(new Potion(100));
     }
 
     @Override
