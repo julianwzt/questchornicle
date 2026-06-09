@@ -43,7 +43,7 @@
             <p>Volume Musik: <input type="range" style="width:100%"></p>
             <p>Volume Efek: <input type="range" style="width:100%"></p>
             <hr style="border-color:#555">
-            <p style="font-size: 0.85em; color:#ccc;"><b>Kontrol:</b> WASD/Panah gerak, Spasi serang, 1 & 2 Skill.</p>
+            <p style="font-size: 0.85em; color:#ccc;"><b>Kontrol:</b> WASD/Panah gerak, Spasi serang, 1 & 2 Skill, I Inventory.</p>
             
             <div style="display:flex; justify-content:center; gap:10px; margin-top: 15px;">
                 <div class="menu-btn selected" onclick="prepareSlot('save')">SAVE GAME</div>
@@ -54,6 +54,13 @@
                 <div class="menu-btn" id="btn-main-menu" onclick="backToMainMenu()" style="display:none;">MAIN MENU</div>
             </div>
         </div>
+    </div>
+
+    <div id="inventory-menu" class="overlay" data-type="menu">
+        <h2 style="color: #e67e22; margin-bottom: 20px;">INVENTORY</h2>
+        <div id="inventory-list" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; min-height: 100px;">
+            </div>
+        <div class="menu-btn selected" onclick="closeInventory()">KEMBALI (I)</div>
     </div>
 
     <div id="game-over-menu" class="overlay" data-type="menu">
@@ -69,6 +76,7 @@
         <div style="font-size: 13px; margin-top:5px; color: #f1c40f; font-weight: bold;">
             <span id="res-name">Resource</span>: <span id="res-val">0</span>
         </div>
+        <div style="font-size: 11px; margin-top: 8px; color: #95a5a6; font-style: italic;">Tekan [I] untuk Inventory</div>
     </div>
 </div>
 

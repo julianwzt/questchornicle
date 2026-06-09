@@ -1,3 +1,6 @@
+/* ==========================================================================
+   SCRIPT.JS - QUEST CHRONICLE (FULL ENGINE + INVENTORY SYSTEM ENABLED)
+   ========================================================================== */
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -23,17 +26,12 @@ loadAsset('objects', 'sword', 'res/objects/sword_normal.png');
 loadAsset('objects', 'potion', 'res/objects/potion_red.png');
 loadAsset('objects', 'chest', 'res/objects/chest.png');
 
-// --- 2. TILEMAP SYSTEM ---
-const TILE_SIZE = 48;
-let currentMapIndex = 0;
-
-const mapGrid = [
-    
-];
+// --- 2. TILEMAP SYSTEM (MULTI-MAP) ---
+const TILE_SIZE = 48; 
+let currentMapIndex = 0; 
 
 const maps = [
-    // === MAP 1 (Gunakan grid asli kamu) ===
-    [
+    [ // MAP 1
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,0,0,4,4,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
         [1,0,0,4,4,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -55,8 +53,7 @@ const maps = [
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ],
-    // === MAP 2 (Buat variasi rintangan baru) ===
-    [
+    [ // MAP 2
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
         [1,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -75,15 +72,11 @@ const maps = [
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,0,0,1],
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-        
-    ],
-    // === MAP 3, 4, dan 5 ===
-    // Kamu tinggal menambahkan grid map ke-3, ke-4, dan ke-5 di bawah ini dipisahkan tanda koma
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
 ];
 
 const MAP_WIDTH = maps[0][0].length * TILE_SIZE;  
-const MAP_HEIGHT = maps[0].length * TILE_SIZE;    
+const MAP_HEIGHT = maps[0].length * TILE_SIZE;      
 
 const chests = [
     { x: 2 * TILE_SIZE, y: 2 * TILE_SIZE, opened: false, item: 'potion' },
@@ -109,12 +102,13 @@ function updateCamera() {
     if (camera.y + canvas.height > MAP_HEIGHT) camera.y = MAP_HEIGHT - canvas.height;
 }
 
-// --- 3. ENTITAS GAME ---
+// --- 3. ENTITAS GAME & INVENTORY PENAMPUNG ---
 let gameState = 'MAIN-MENU'; 
 let isGameStarted = false; 
 let projectiles = []; 
 const floatingTexts = [];
 let stageFinished = false;
+let inventory = []; // Array Penyimpan Item
 
 let enemy = {
     x: 19 * TILE_SIZE, y: 7 * TILE_SIZE,
@@ -183,9 +177,11 @@ let player = {
             if (!chest.opened && checkCollisionBox(atkBox, { x: chest.x, y: chest.y, width: TILE_SIZE, height: TILE_SIZE })) {
                 chest.opened = true;
                 showFloatingDamage(chest.x, chest.y, 'ITEM!', '#f1c40f');
+                
+                // MODIFIKASI: Chest sekarang memberikan item ke Inventory, tidak instan heal
                 if (chest.item === 'potion') {
-                    this.hp = Math.min(this.maxHp, this.hp + 30);
-                    showFloatingDamage(this.x, this.y, '+30 HP', '#2ecc71');
+                    addInventoryItem('Red Potion', 'potion');
+                    showFloatingDamage(player.x, player.y, '+1 Red Potion', '#2ecc71');
                 }
                 updateHUD();
             }
@@ -205,6 +201,102 @@ let player = {
     }
 };
 
+// --- LOGIKA UTAMA SYSTEM INVENTORY ---
+function addInventoryItem(name, type) {
+    let existing = inventory.find(item => item.type === type);
+    if (existing) {
+        existing.count++;
+    } else {
+        inventory.push({ name: name, type: type, count: 1 });
+    }
+}
+
+function closeInventory() {
+    document.querySelectorAll('.overlay').forEach(el => el.classList.remove('active'));
+    gameState = 'PLAYING';
+    requestAnimationFrame(gameLoop);
+}
+
+function renderInventory() {
+    const listContainer = document.getElementById('inventory-list');
+    listContainer.innerHTML = '';
+    
+    if (inventory.length === 0) {
+        listContainer.innerHTML = '<p style="color: #bdc3c7; font-weight: bold; margin: 15px 0;">Inventory Kosong</p>';
+        return;
+    }
+    
+    inventory.forEach((item, index) => {
+        let itemDiv = document.createElement('div');
+        itemDiv.className = 'menu-btn';
+        itemDiv.style.width = '320px'; // Sedikit dilebarkan untuk memberi ruang pada gambar
+        itemDiv.style.display = 'flex';
+        itemDiv.style.justifyContent = 'space-between';
+        itemDiv.style.alignItems = 'center';
+        itemDiv.style.padding = '10px 15px';
+        itemDiv.style.margin = '5px 0';
+        itemDiv.style.cursor = 'default'; // Kursor biasa agar tidak terkesan tombol penuh
+        
+        // Menentukan rute gambar berdasarkan tipe item
+        let imagePath = '';
+        if (item.type === 'potion') {
+            imagePath = 'res/objects/potion_red.png';
+        }
+        
+        // Memasukkan tag <img> di sebelah nama item
+        itemDiv.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="${imagePath}" alt="item" style="width: 32px; height: 32px; image-rendering: pixelated;">
+                <span style="font-size: 14px;">${item.name} (x${item.count})</span>
+            </div>
+        `;
+        
+        // Tombol USE (Gunakan)
+        if (item.type === 'potion') {
+            let useBtn = document.createElement('button');
+            useBtn.innerText = 'USE';
+            useBtn.style.background = '#2ecc71';
+            useBtn.style.border = '2px solid #27ae60';
+            useBtn.style.color = 'white';
+            useBtn.style.padding = '6px 12px';
+            useBtn.style.cursor = 'pointer';
+            useBtn.style.fontWeight = 'bold';
+            useBtn.style.borderRadius = '5px';
+            
+            // Efek saat dihover
+            useBtn.onmouseover = () => useBtn.style.background = '#27ae60';
+            useBtn.onmouseout = () => useBtn.style.background = '#2ecc71';
+            
+            useBtn.onclick = (e) => {
+                e.stopPropagation();
+                usePotion(index);
+            };
+            itemDiv.appendChild(useBtn);
+        }
+        listContainer.appendChild(itemDiv);
+    });
+}
+
+function usePotion(index) {
+    let item = inventory[index];
+    if (item && item.type === 'potion' && item.count > 0) {
+        if (player.hp >= player.maxHp) {
+            alert("Darah pahlawan sudah penuh!");
+            return;
+        }
+        player.hp = Math.min(player.maxHp, player.hp + 30);
+        showFloatingDamage(player.x, player.y, '+30 HP', '#2ecc71');
+        item.count--;
+        
+        if (item.count <= 0) {
+            inventory.splice(index, 1);
+        }
+        
+        updateHUD();
+        renderInventory();
+    }
+}
+
 function spawnProjectile(x, y, dir, color, damage) {
     let vx = 0, vy = 0;
     if (dir === 'up') vy = -8; 
@@ -216,9 +308,7 @@ function spawnProjectile(x, y, dir, color, damage) {
 
 const keys = {};
 
-// --- 4. SISTEM NAVIGASI UI & MULTI-SLOT ---
-let pendingAction = ''; 
-
+// --- 4. SISTEM NAVIGASI UI ---
 function showScreen(id) { 
     document.querySelectorAll('.overlay').forEach(el => el.classList.remove('active')); 
     const targetOverlay = document.getElementById(id);
@@ -265,49 +355,52 @@ function gameOver() {
 
 function stageClear() {
     if (stageFinished) return;
+    stageFinished = true; 
 
-    // JIKA MASIH ADA MAP BERIKUTNYA (Belum mencapai map terakhir)
     if (currentMapIndex < maps.length - 1) {
-        alert(`Musuh Kalah! Selamat, kamu berhasil melewati Map ${currentMapIndex + 1}.\nBersiap masuk ke Map ${currentMapIndex + 2}!`);
-        
-        currentMapIndex++; // Naikkan nomor map saat ini
+        ctx.fillStyle = 'rgba(0,0,0,0.8)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 40px Arial';
+        ctx.fillText('MAP CLEAR!', canvas.width / 2 - 120, canvas.height / 2 - 20);
 
-        // Reset posisi karakter kembali ke area awal di map yang baru
-        player.x = 3 * TILE_SIZE; 
-        player.y = 3 * TILE_SIZE;
-
-        // Bangkitkan kembali musuh di koordinat spawn baru untuk map ini
-        enemy.x = 19 * TILE_SIZE; 
-        enemy.y = 7 * TILE_SIZE;
-        enemy.hp = enemy.maxHp + (currentMapIndex * 50); // Musuh makin map baru makin kuat darahnya
-        enemy.alive = true;
-
-        // Bersihkan sisa-sisa tembakan dan kotak harta karun map lama
-        projectiles = []; 
-        chests.forEach(c => c.opened = false);
-        
-        updateHUD();
+        setTimeout(() => {
+            currentMapIndex++; 
+            player.x = 3 * TILE_SIZE;
+            player.y = 3 * TILE_SIZE;
+            enemy.x = 19 * TILE_SIZE;
+            enemy.y = 7 * TILE_SIZE;
+            enemy.hp = enemy.maxHp + (currentMapIndex * 50); 
+            enemy.alive = true;
+            projectiles = [];
+            chests.forEach(c => c.opened = false);
+            updateHUD();
+            
+            stageFinished = false; 
+            gameState = 'PLAYING';
+        }, 2500);
     } else {
-        // JIKA SUDAH BERHASIL MENYELESAIKAN MAP KE-5 (Map Terakhir)
-        stageFinished = true;
         gameState = 'STAGE-CLEAR';
-        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.fillStyle = 'rgba(0,0,0,0.8)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = 'yellow';
         ctx.font = 'bold 50px Arial';
         ctx.fillText('GAME TAMAT!', canvas.width / 2 - 160, canvas.height / 2);
-        setTimeout(() => { backToMainMenu(); }, 2500);
+        setTimeout(() => { backToMainMenu(); }, 3000);
     }
 }
 
 function backToMainMenu() {
     isGameStarted = false;
+    currentMapIndex = 0; 
     document.getElementById('hud').style.display = 'none';
     showScreen('main-menu');
 }
 
 function startGame(job) {
     isGameStarted = true; stageFinished = false;
+    currentMapIndex = 0; 
+    inventory = []; // Kosongkan inventory di game baru
     player.setJob(job);
     player.x = 3 * TILE_SIZE; player.y = 3 * TILE_SIZE;
 
@@ -324,7 +417,6 @@ function startGame(job) {
     requestAnimationFrame(gameLoop);
 }
 
-// --- PERBAIKAN: FUNGSI SAVE/LOAD VIA MOUSE & KEYBOARD ---
 function prepareSlot(action) {
     pendingAction = action;
     showScreen('slot-menu');
@@ -336,34 +428,28 @@ function cancelSlotSelection() {
 }
 
 function performSlotAction(slotId) {
-    console.log("Slot dipilih:", slotId, "Aksi:", pendingAction);
-    if (pendingAction === 'save') {
-        saveGameData(slotId);
-    } else if (pendingAction === 'load') {
-        loadGameData(slotId);
-    }
+    if (pendingAction === 'save') saveGameData(slotId);
+    else if (pendingAction === 'load') loadGameData(slotId);
 }
 
 function saveGameData(slotId) {
     let payload = `action=save&slot_id=${slotId}&x=${player.x}&y=${player.y}&hp=${player.hp}&job=${player.job}`;
-    
     fetch('GameServlet', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: payload
     })
-    .then(res => res.text()) // Ambil teks mentah agar jika Java error langsung terbaca
+    .then(res => res.text())
     .then(text => {
         try {
             let data = JSON.parse(text);
             alert("Progres Berhasil Disimpan di Slot " + slotId + "!");
             showScreen('settings-menu');
         } catch (e) {
-            alert("SERVER ERROR! Gagal mengurai data save.\nPastikan XAMPP & Driver JDBC MySQL aktif.");
-            console.error("Raw response:", text);
+            alert("SERVER ERROR! Gagal mengurai data.\nPastikan XAMPP & Driver JDBC MySQL aktif.");
         }
     })
-    .catch(err => alert("Gagal koneksi ke server: " + err));
+    .catch(err => alert("Gagal koneksi: " + err));
 }
 
 function loadGameData(slotId) {
@@ -376,20 +462,17 @@ function loadGameData(slotId) {
     .then(text => {
         try {
             let data = JSON.parse(text);
-            
-            // PROTEKSI TOTAL: Jika status data kosong, atau struktur objek player tidak valid
             if (data.status === 'empty' || !data.player || !data.player.job) {
                 alert("Slot " + slotId + " masih kosong! Silakan pilih slot lain atau mulai Game Baru.");
-                showScreen('main-menu'); // Tendang kembali ke menu utama secara aman
-                return; // Kunci total di sini agar game loop tidak berjalan!
+                showScreen('main-menu');
+                return;
             }
 
-            // Game hanya akan berjalan jika data dari database lolos verifikasi di atas
             isGameStarted = true; stageFinished = false;
+            currentMapIndex = 0; 
+            inventory = []; // Reset item saat load
             player.setJob(data.player.job);
-            player.x = data.player.x; 
-            player.y = data.player.y; 
-            player.hp = data.player.hp;
+            player.x = data.player.x; player.y = data.player.y; player.hp = data.player.hp;
             
             enemy.x = 19 * TILE_SIZE; enemy.y = 7 * TILE_SIZE; enemy.hp = enemy.maxHp; enemy.alive = true;
             projectiles = []; chests.forEach(c => c.opened = false);
@@ -405,7 +488,6 @@ function loadGameData(slotId) {
             alert("Slot " + slotId + " Berhasil Dimuat!");
         } catch (e) {
             alert("SERVER ERROR! Gagal memproses data load.");
-            console.error("Raw response:", text);
         }
     })
     .catch(err => alert("Gagal koneksi ke server: " + err));
@@ -416,6 +498,17 @@ window.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
         if (gameState === 'PLAYING') openSettings();
         else if (gameState === 'SETTINGS-MENU') closeSettings();
+        return;
+    }
+
+    // MODIFIKASI: Deteksi tombol 'i' / 'I' untuk buka-tutup Inventory
+    if (e.key === 'i' || e.key === 'I') {
+        if (gameState === 'PLAYING') {
+            showScreen('inventory-menu');
+            renderInventory();
+        } else if (gameState === 'INVENTORY-MENU') {
+            closeInventory();
+        }
         return;
     }
 
@@ -462,9 +555,9 @@ function checkCollision(x, y, w, h, target) {
 function checkCollisionBox(box1, box2) {
     return (box1.x < box2.x + box2.width && box1.x + box1.size > box2.x && box1.y < box2.y + box2.height && box1.y + box1.size > box2.y);
 }
+
 function isSolid(x, y) {
     let col = Math.floor(x / TILE_SIZE), row = Math.floor(y / TILE_SIZE);
-    // Mengambil map yang sedang aktif saat ini
     let activeMap = maps[currentMapIndex]; 
     if (row < 0 || row >= activeMap.length || col < 0 || col >= activeMap[0].length) return true;
     let tileId = activeMap[row][col]; 
@@ -518,11 +611,9 @@ function showFloatingDamage(x, y, damage, color) {
     floatingTexts.push({ x: x, y: y, text: typeof damage === 'number' ? '-' + Math.floor(damage) : damage, color: color, life: 60 });
 }
 
-// --- PERBAIKAN: MUSUH CUMAN GERAK KALO MASUK POV & GAK TEMBUS AIR/POHON ---
 function updateEnemy() {
     if (!enemy.alive) return;
     
-    // Pengecekan POV Kamera
     let isInPOV = (
         enemy.x + enemy.width > camera.x && 
         enemy.x < camera.x + canvas.width && 
@@ -542,25 +633,22 @@ function updateEnemy() {
             let newX = enemy.x + moveX;
             let newY = enemy.y + moveY;
 
-            // Cek 4 Kordinat Sudut untuk Sumbu X (Solid/Tembus)
             if (!isSolid(newX, enemy.y) && !isSolid(newX + enemy.width, enemy.y) &&
                 !isSolid(newX, enemy.y + enemy.height) && !isSolid(newX + enemy.width, enemy.y + enemy.height)) {
                 enemy.x = newX; 
             }
             
-            // Cek 4 Kordinat Sudut untuk Sumbu Y (Solid/Tembus)
             if (!isSolid(enemy.x, newY) && !isSolid(enemy.x + enemy.width, newY) &&
                 !isSolid(enemy.x, newY + enemy.height) && !isSolid(enemy.x + enemy.width, newY + enemy.height)) {
                 enemy.y = newY; 
             }
         }
         
-        // Serang Player
         if (distance < 50 && enemy.attackCooldown <= 0) {
             let damage = enemy.damage;
             if (player.isDefending) damage *= 0.3;
             player.hp -= damage;
-            if (player.hp < 0) { player.hp = 0; gameOver(); }
+            if (player.hp <= 0) { player.hp = 0; gameOver(); }
             showFloatingDamage(player.x, player.y, damage, 'red');
             updateHUD(); enemy.attackCooldown = 60;
         }
