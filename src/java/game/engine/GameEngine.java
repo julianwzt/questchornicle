@@ -7,17 +7,15 @@ import game.system.SaveManager;
 public class GameEngine {
     private Hero hero; 
     private final GameMap map;
-    private final SaveManager saveManager; // Nama variabel sudah diseragamkan
+    private final SaveManager saveManager; 
     private final BattleSystem battleSystem;
 
     public GameEngine() {
         this.hero = new Hero("Player 1");
-        this.hero.job = "Warrior"; // Nilai default agar tidak error
-        Enemy firstEnemy = new Enemy("Goblin", 50, 5);
+        this.hero.job = "Warrior"; // Job bawaan agar tidak null
+        Enemy firstEnemy = new Enemy("Goblin", 200, 10);
         this.battleSystem = new BattleSystem(this.hero, firstEnemy);
         this.map = new GameMap();
-        
-        // Inisialisasi Database
         this.saveManager = new SaveManager(); 
     }
 
@@ -27,23 +25,21 @@ public class GameEngine {
 
     public void startGame() {}
     
-    // Fungsi Save
     public void saveGame(int slotId) {
         if (this.saveManager != null && this.hero != null) {
             this.saveManager.save(this.hero, slotId); 
         }
     }
     
-    // Fungsi Load
     public boolean loadGame(int slotId) {
         if (this.saveManager != null) {
             Hero loadedHero = this.saveManager.load(slotId);
             if (loadedHero != null) {
                 this.hero = loadedHero;
-                return true; // Berhasil menemukan data di database
+                return true;
             }
         }
-        return false; // Slot kosong atau data tidak ditemukan
+        return false;
     }
 
     public BattleSystem getBattleSystem() {
@@ -56,7 +52,6 @@ public class GameEngine {
 
     public String getGameStateAsJson() {
         if (this.hero != null) {
-            // 1. Ambil Data Player (Fix Error Null menggunakan ternary operator)
             String playerJson = String.format(
                 "\"player\": {\"hp\": %d, \"maxHp\": %d, \"x\": %d, \"y\": %d, \"job\": \"%s\"}",
                 this.hero.getHp(), 
@@ -66,8 +61,6 @@ public class GameEngine {
                 this.hero.job != null ? this.hero.job : "Warrior"
             );
 
-            // 2. Ambil Data Enemy (Menghubungkan class Enemy Java ke JSP)
-            // Jika suatu saat kamu membuat boss dengan damage 50, JS akan otomatis ikut
             String enemyJson = "\"enemy\": {\"hp\": 200, \"maxHp\": 200, \"damage\": 10, \"speed\": 1.2}";
             if (this.battleSystem != null && this.battleSystem.getEnemy() != null) {
                 Enemy e = this.battleSystem.getEnemy();
@@ -77,15 +70,10 @@ public class GameEngine {
                 );
             }
 
-            // 3. Ambil Data Inventory (Format Array List untuk JS)
-            // Saat ini kita kirim format array default agar tidak Null di Frontend
             String inventoryJson = "\"inventory\": []";
 
-            // Gabungkan ketiganya agar Frontend (JSP/JS) bisa membaca semuanya
             return "{" + playerJson + ", " + enemyJson + ", " + inventoryJson + "}";
         }
-        
-        // 6. Fix Error Null: Jika tidak ada data
         return "{\"status\": \"empty\"}";
     }
 }
