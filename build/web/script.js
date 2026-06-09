@@ -454,27 +454,36 @@ function saveGameData(slotId) {
 
 function loadGameData(slotId) {
     fetch('GameServlet', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: `action=load&slot_id=${slotId}`
+        method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'}, body: `action=load&slot_id=${slotId}`
     })
     .then(res => res.text())
     .then(text => {
         try {
             let data = JSON.parse(text);
+            
             if (data.status === 'empty' || !data.player || !data.player.job) {
                 alert("Slot " + slotId + " masih kosong! Silakan pilih slot lain atau mulai Game Baru.");
                 showScreen('main-menu');
                 return;
             }
 
-            isGameStarted = true; stageFinished = false;
-            currentMapIndex = 0; 
-            inventory = []; // Reset item saat load
-            player.setJob(data.player.job);
-            player.x = data.player.x; player.y = data.player.y; player.hp = data.player.hp;
+            isGameStarted = true; stageFinished = false; currentMapIndex = 0; 
             
-            enemy.x = 19 * TILE_SIZE; enemy.y = 7 * TILE_SIZE; enemy.hp = enemy.maxHp; enemy.alive = true;
+            player.setJob(data.player.job);
+            player.x = data.player.x; 
+            player.y = data.player.y; 
+            player.hp = data.player.hp;
+            
+            if (data.enemy) {
+                enemy.x = 19 * TILE_SIZE; enemy.y = 7 * TILE_SIZE; 
+                enemy.hp = data.enemy.hp; enemy.maxHp = data.enemy.maxHp; 
+                enemy.damage = data.enemy.damage; enemy.speed = data.enemy.speed;
+                enemy.alive = true;
+            }
+
+            if (data.inventory) { inventory = data.inventory; } 
+            else { inventory = []; }
+
             projectiles = []; chests.forEach(c => c.opened = false);
 
             document.getElementById('job-val').innerText = player.job; 
@@ -485,12 +494,13 @@ function loadGameData(slotId) {
             gameState = 'PLAYING';
             requestAnimationFrame(gameLoop);
             
-            alert("Slot " + slotId + " Berhasil Dimuat!");
+            alert("Data Game Berhasil Dimuat dari Server!");
         } catch (e) {
-            alert("SERVER ERROR! Gagal memproses data load.");
+            alert("SERVER ERROR! Gagal memproses data JSON dari Java.");
+            console.error(text);
         }
     })
-    .catch(err => alert("Gagal koneksi ke server: " + err));
+    .catch(err => alert("Gagal koneksi ke server Java: " + err));
 }
 
 // --- 5. KEYBOARD LISTENER ---

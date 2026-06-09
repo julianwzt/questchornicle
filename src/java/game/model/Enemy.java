@@ -86,4 +86,25 @@ public class Enemy extends Character {
     public int getY() {
         return y;
     }
+
+    public String getNama() {
+        return nama;
+    }
+
+    public int getHp() {
+        return hp;
+    }
+
+    public int getDamage() {
+        return damage;
+    }
+
+    public int getDropExp() {
+        return dropExp;
+    }
+
+    public Item getDropItem() {
+        return dropItem;
+    }
+    
 }

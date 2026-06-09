@@ -56,15 +56,36 @@ public class GameEngine {
 
     public String getGameStateAsJson() {
         if (this.hero != null) {
-            return String.format(
-                "{\"player\": {\"hp\": %d, \"maxHp\": %d, \"x\": %d, \"y\": %d, \"job\": \"%s\"}}",
+            // 1. Ambil Data Player (Fix Error Null menggunakan ternary operator)
+            String playerJson = String.format(
+                "\"player\": {\"hp\": %d, \"maxHp\": %d, \"x\": %d, \"y\": %d, \"job\": \"%s\"}",
                 this.hero.getHp(), 
                 this.hero.getMaxHp(), 
                 this.hero.getX(), 
                 this.hero.getY(),
                 this.hero.job != null ? this.hero.job : "Warrior"
             );
+
+            // 2. Ambil Data Enemy (Menghubungkan class Enemy Java ke JSP)
+            // Jika suatu saat kamu membuat boss dengan damage 50, JS akan otomatis ikut
+            String enemyJson = "\"enemy\": {\"hp\": 200, \"maxHp\": 200, \"damage\": 10, \"speed\": 1.2}";
+            if (this.battleSystem != null && this.battleSystem.getEnemy() != null) {
+                Enemy e = this.battleSystem.getEnemy();
+                enemyJson = String.format(
+                    "\"enemy\": {\"hp\": %d, \"maxHp\": %d, \"damage\": %d, \"speed\": 1.2}",
+                    e.getHp(), e.getHp(), e.getDamage()
+                );
+            }
+
+            // 3. Ambil Data Inventory (Format Array List untuk JS)
+            // Saat ini kita kirim format array default agar tidak Null di Frontend
+            String inventoryJson = "\"inventory\": []";
+
+            // Gabungkan ketiganya agar Frontend (JSP/JS) bisa membaca semuanya
+            return "{" + playerJson + ", " + enemyJson + ", " + inventoryJson + "}";
         }
-        return "{}";
+        
+        // 6. Fix Error Null: Jika tidak ada data
+        return "{\"status\": \"empty\"}";
     }
 }
