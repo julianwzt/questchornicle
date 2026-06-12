@@ -23,6 +23,11 @@ public class GameEngine {
         return this.hero;
     }
 
+    // Tambahan: Agar map bisa diakses oleh GameServlet atau class lain
+    public GameMap getGameMap() {
+        return this.map;
+    }
+
     public void startGame() {}
     
     public void saveGame(int slotId) {
@@ -66,7 +71,7 @@ public class GameEngine {
                 Enemy e = this.battleSystem.getEnemy();
                 enemyJson = String.format(
                     "\"enemy\": {\"hp\": %d, \"maxHp\": %d, \"damage\": %d, \"speed\": 1.2}",
-                    e.getHp(), e.getHp(), e.getDamage()
+                    e.getHp(), e.getMaxHp(), e.getDamage() // Diperbaiki dari e.getHp() yang tadinya dobel
                 );
             }
 
