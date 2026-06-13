@@ -62,6 +62,13 @@ pageEncoding="UTF-8"%>
             <b>Kontrol:</b> WASD/Panah gerak, Spasi serang, 1 & 2 Skill, I
             Inventory.
           </p>
+          <hr style="border-color: #555" />
+          <p style="font-size: 0.85em; color: #ccc; margin-top: 10px;">
+            <b>Music:</b>
+          </p>
+          <div class="menu-btn" id="bgm-mute-btn" onclick="toggleBGMMute()" style="width: 100%; margin: 5px 0;">
+            🔊 MUTE MUSIC
+          </div>
 
           <div
             style="

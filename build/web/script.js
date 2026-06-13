@@ -1,6 +1,315 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+const BGM_VOLUME = 0.3;
+let bgmAudio = null;
+let isBgmPlaying = false;
+let isBgmMuted = false;
+
+function initBGM() {
+    if (!bgmAudio) {
+        bgmAudio = new Audio("res/sound/background_music.mp3");
+        bgmAudio.loop = true;
+        bgmAudio.volume = BGM_VOLUME;
+        bgmAudio.preload = "auto";
+    }
+}
+
+function playBGM() {
+    if (isBgmMuted || !bgmAudio) return;
+    if (!isBgmPlaying) {
+        bgmAudio.play().catch(() => {});
+        isBgmPlaying = true;
+    }
+}
+
+function pauseBGM() {
+    if (bgmAudio && isBgmPlaying) {
+        bgmAudio.pause();
+        isBgmPlaying = false;
+    }
+}
+
+function stopBGM() {
+    if (bgmAudio) {
+        bgmAudio.pause();
+        bgmAudio.currentTime = 0;
+        isBgmPlaying = false;
+    }
+}
+
+function toggleBGMMute() {
+    isBgmMuted = !isBgmMuted;
+    if (isBgmMuted) {
+        pauseBGM();
+    } else {
+        playBGM();
+    }
+    updateMuteButton();
+    return isBgmMuted;
+}
+
+function updateMuteButton() {
+    const btn = document.getElementById("bgm-mute-btn");
+    if (btn) {
+        btn.innerText = isBgmMuted ? "🔇 UNMUTE MUSIC" : "🔊 MUTE MUSIC";
+        btn.style.background = isBgmMuted ? "#c0392b" : "#27ae60";
+    }
+}
+
+let boss = null;
+let bossDefeated = false;
+
+function initBoss() {
+    boss = {
+        nama: "Dragon",
+        skin: "dragon",
+        hp: 400,
+        maxHp: 400,
+        damage: 40,
+        x: 1800,
+        y: 1800,
+        width: 64,
+        height: 64,
+        speed: 1.0,
+        alive: true,
+        state: "IDLE",
+        patrolDir: { x: 0, y: 0 },
+        patrolTimer: 0,
+        attackCooldown: 0,
+        hitFlash: 0,
+        isBoss: true,
+        getCenter: function() {
+            return { x: this.x + 32, y: this.y + 32 };
+        }
+    };
+    bossDefeated = false;
+}
+
+function updateBoss() {
+    if (!boss || !boss.alive || bossDefeated) return;
+
+    const playerCenter = {
+        x: player.x + player.width / 2,
+        y: player.y + player.height / 2
+    };
+    const bossCenter = boss.getCenter();
+    const dx = playerCenter.x - bossCenter.x;
+    const dy = playerCenter.y - bossCenter.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    const BOSS_AGGRO_RANGE = 500;
+    const BOSS_DEAGGRO_RANGE = 700;
+    const BOSS_ATTACK_RANGE = 80;
+
+    switch (boss.state) {
+        case "IDLE":
+            if (distance <= BOSS_AGGRO_RANGE) {
+                boss.state = "CHASE";
+                showFloatingDamage(boss.x, boss.y - 20, "BOSS ENGAGED!", "#e74c3c");
+            } else {
+                boss.patrolTimer++;
+                if (boss.patrolTimer >= ENEMY_PATROL_INTERVAL) {
+                    boss.patrolTimer = 0;
+                    const dirs = [-1, 0, 1];
+                    boss.patrolDir.x = dirs[Math.floor(Math.random() * 3)];
+                    boss.patrolDir.y = dirs[Math.floor(Math.random() * 3)];
+                }
+                if (boss.patrolDir.x !== 0 || boss.patrolDir.y !== 0) {
+                    let patrolX = boss.x + boss.patrolDir.x * (boss.speed * 0.3);
+                    let patrolY = boss.y + boss.patrolDir.y * (boss.speed * 0.3);
+                    if (canMoveTo(patrolX, boss.y, boss.width, boss.height))
+                        boss.x = patrolX;
+                    if (canMoveTo(boss.x, patrolY, boss.width, boss.height))
+                        boss.y = patrolY;
+                }
+            }
+            break;
+
+        case "CHASE":
+            if (distance > BOSS_DEAGGRO_RANGE) {
+                boss.state = "IDLE";
+                boss.patrolTimer = ENEMY_PATROL_INTERVAL;
+                break;
+            }
+            if (distance <= BOSS_ATTACK_RANGE) {
+                boss.state = "ATTACK";
+                break;
+            }
+            let chaseDx = (dx / distance) * boss.speed;
+            let chaseDy = (dy / distance) * boss.speed;
+            let newBossX = boss.x + chaseDx;
+            if (canMoveTo(newBossX, boss.y, boss.width, boss.height))
+                boss.x = newBossX;
+            let newBossY = boss.y + chaseDy;
+            if (canMoveTo(boss.x, newBossY, boss.width, boss.height))
+                boss.y = newBossY;
+            break;
+
+        case "ATTACK":
+            if (distance > BOSS_ATTACK_RANGE) {
+                boss.state = "CHASE";
+                break;
+            }
+            if (boss.attackCooldown <= 0) {
+                let dmg = boss.damage;
+                if (player.isDefending) dmg = Math.floor(dmg * 0.3);
+                player.hp -= dmg;
+                showFloatingDamage(player.x, player.y, dmg, "#e74c3c");
+                playSfx("hurt");
+                playerHitFlash = 15;
+
+                showFloatingDamage(boss.x, boss.y - 30, "FIRE BREATH!", "#ff6b35");
+
+                fetch("GameServlet", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: `action=take_damage&damage=${dmg}`,
+                });
+                if (player.hp <= 0) {
+                    player.hp = 0;
+                    gameOver();
+                }
+                updateHUD();
+                boss.attackCooldown = 90;
+            }
+            break;
+    }
+    if (boss.attackCooldown > 0) boss.attackCooldown--;
+}
+
+function drawBoss() {
+    if (!boss || !boss.alive || bossDefeated) return;
+
+    const bx = boss.x - camera.x;
+    const by = boss.y - camera.y;
+
+    if (bx + boss.width < 0 || bx > canvas.width || 
+        by + boss.height < 0 || by > canvas.height) return;
+
+    const frame = Math.floor(Date.now() / 300) % 2 === 0 ? "1" : "2";
+    let img = assets.enemy[`${boss.skin}_${frame}`];
+
+    if (img && img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, bx, by, boss.width, boss.height);
+    } else {
+        ctx.fillStyle = "#8b0000";
+        ctx.fillRect(bx, by, boss.width, boss.height);
+        ctx.fillStyle = "#ffd700";
+        ctx.beginPath();
+        ctx.moveTo(bx + 20, by - 10);
+        ctx.lineTo(bx + 32, by + 5);
+        ctx.lineTo(bx + 44, by - 10);
+        ctx.fill();
+    }
+
+    if (boss.hitFlash > 0) {
+        ctx.save();
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = "#ff0000";
+        ctx.fillRect(bx, by, boss.width, boss.height);
+        ctx.restore();
+        boss.hitFlash--;
+    }
+
+    const hpPercent = boss.hp / boss.maxHp;
+    const barWidth = boss.width + 20;
+    const barX = bx - 10;
+
+    ctx.fillStyle = "#000";
+    ctx.fillRect(barX, by - 25, barWidth, 14);
+    ctx.fillStyle = "#c0392b";
+    ctx.fillRect(barX + 1, by - 24, barWidth - 2, 12);
+    ctx.fillStyle = hpPercent > 0.5 ? "#e74c3c" : hpPercent > 0.25 ? "#ff6b35" : "#ff0000";
+    ctx.fillRect(barX + 1, by - 24, (barWidth - 2) * hpPercent, 12);
+    ctx.strokeStyle = "#ffd700";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(barX, by - 25, barWidth, 14);
+
+    ctx.fillStyle = "#ffd700";
+    ctx.font = "bold 14px Arial";
+    ctx.fillText("★ DRAGON BOSS ★", barX, by - 30);
+
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 11px Arial";
+    ctx.fillText(`${boss.hp}/${boss.maxHp}`, barX + barWidth/2 - 25, by - 15);
+}
+
+function checkBossHit(projectile, index) {
+    if (!boss || !boss.alive || bossDefeated) return false;
+
+    if (checkCollision(projectile.x, projectile.y, projectile.size, projectile.size, boss)) {
+        showFloatingDamage(boss.x, boss.y, "HIT!", "#3498db");
+        playSfx("hit");
+        boss.hitFlash = 10;
+
+        let kbX = boss.x;
+        let kbY = boss.y;
+        let kbForce = 15;
+        if (projectile.vy < 0) kbY -= kbForce;
+        else if (projectile.vy > 0) kbY += kbForce;
+        else if (projectile.vx < 0) kbX -= kbForce;
+        else if (projectile.vx > 0) kbX += kbForce;
+        if (canMoveTo(kbX, kbY, boss.width, boss.height)) {
+            boss.x = kbX;
+            boss.y = kbY;
+        }
+
+        boss.hp -= projectile.damage;
+        if (boss.hp <= 0) {
+            boss.hp = 0;
+            boss.alive = false;
+            bossDefeated = true;
+            showFloatingDamage(boss.x, boss.y - 50, "BOSS DEFEATED!", "#ffd700");
+            showFloatingDamage(player.x, player.y - 30, "+500 EXP", "#f1c40f");
+            playSfx("levelup");
+
+            setTimeout(() => {
+                showFloatingDamage(boss.x, boss.y, "LEGENDARY DROP!", "#9b59b6");
+            }, 1000);
+        }
+
+        projectiles.splice(index, 1);
+        return true;
+    }
+    return false;
+}
+
+function checkBossMeleeHit() {
+    if (!boss || !boss.alive || bossDefeated) return;
+
+    let atkBox = { x: player.x - 20, y: player.y - 20, size: player.width + 40 };
+    if (checkCollisionBox(atkBox, boss)) {
+        showFloatingDamage(boss.x, boss.y, "HIT!", "#f1c40f");
+        playSfx("hit");
+        boss.hitFlash = 10;
+
+        let kbX = boss.x;
+        let kbY = boss.y;
+        let kbForce = 20;
+        if (player.direction === "up") kbY -= kbForce;
+        else if (player.direction === "down") kbY += kbForce;
+        else if (player.direction === "left") kbX -= kbForce;
+        else if (player.direction === "right") kbX += kbForce;
+        if (canMoveTo(kbX, kbY, boss.width, boss.height)) {
+            boss.x = kbX;
+            boss.y = kbY;
+        }
+
+        boss.hp -= player.baseAtk * 2;
+        if (boss.hp <= 0) {
+            boss.hp = 0;
+            boss.alive = false;
+            bossDefeated = true;
+            showFloatingDamage(boss.x, boss.y - 50, "BOSS DEFEATED!", "#ffd700");
+            showFloatingDamage(player.x, player.y - 30, "+500 EXP", "#f1c40f");
+            playSfx("levelup");
+        }
+    }
+}
+
+
+
 const assets = {
   tiles: {},
   player: {},
@@ -59,6 +368,8 @@ loadAsset("enemy", "orc_1", "res/monster/orc_down_1.png");
 loadAsset("enemy", "orc_2", "res/monster/orc_down_2.png");
 loadAsset("enemy", "bat_1", "res/monster/bat_down_1.png");
 loadAsset("enemy", "bat_2", "res/monster/bat_down_2.png");
+loadAsset("enemy", "dragon_1", "res/monster/dragon_down_1.png");
+loadAsset("enemy", "dragon_2", "res/monster/dragon_down_2.png");
 
 const projectileDirMap = {
   up: "atas",
@@ -329,6 +640,7 @@ let player = {
           });
       }
     });
+    checkBossMeleeHit();
     setTimeout(() => {
       this.isAttacking = false;
     }, 150);
@@ -530,6 +842,9 @@ function updateProjectiles() {
         hit = true;
       }
     });
+    if (!hit) {
+      hit = checkBossHit(p, i);
+    }
     if (hit) {
       projectiles.splice(i, 1);
     }
@@ -546,6 +861,7 @@ function showScreen(id) {
   gameState = id.toUpperCase();
 }
 function openSettings() {
+  pauseBGM();
   showScreen("settings-menu");
   let m = document.getElementById("btn-main-menu");
   if (m) m.style.display = isGameStarted ? "block" : "none";
@@ -554,6 +870,7 @@ function closeSettings() {
   if (isGameStarted) {
     showScreen("none");
     gameState = "PLAYING";
+    playBGM();
     requestAnimationFrame(gameLoop);
   } else showScreen("main-menu");
 }
@@ -563,6 +880,7 @@ function closeInventory() {
   requestAnimationFrame(gameLoop);
 }
 function gameOver() {
+  stopBGM();
   isGameStarted = false;
   let hud = document.getElementById("hud");
   if (hud) hud.style.display = "none";
@@ -604,6 +922,7 @@ function stageClear() {
 }
 
 function backToMainMenu() {
+  stopBGM();
   isGameStarted = false;
   let hud = document.getElementById("hud");
   if (hud) hud.style.display = "none";
@@ -615,6 +934,9 @@ async function startGame(job) {
   stageFinished = false;
   inventory = [];
   player.setJob(job);
+      initBGM();
+      playBGM();
+      initBoss();
   if (document.getElementById("job-val"))
     document.getElementById("job-val").innerText = job;
   if (document.getElementById("hud"))
@@ -1106,6 +1428,7 @@ function gameLoop() {
     updatePlayer();
     updateProjectiles();
     updateEnemies();
+    updateBoss();
     updateCamera();
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1113,6 +1436,7 @@ function gameLoop() {
     drawMap();
     drawChests();
     drawEnemies();
+    drawBoss();
 
     // RENDER PELURU/SIHIR
     projectiles.forEach((p) => {
