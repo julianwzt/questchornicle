@@ -2,6 +2,8 @@ package game.engine;
 
 import game.model.Enemy;
 import game.model.Hero;
+import game.model.Orc;
+import game.model.Slime;
 import game.system.SaveManager;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +31,11 @@ public class GameEngine {
         activeEnemies.clear();
         activeChests.clear();
         
-        activeEnemies.add(new Enemy("slime", 50, 10, 720, 480));   
-        activeEnemies.add(new Enemy("orc", 80, 15, 1680, 720));    
+        activeEnemies.add(new Slime(720, 480));
+        activeEnemies.add(new Orc(1680, 720)); 
         activeEnemies.add(new Enemy("bat", 40, 5, 480, 1440));     
-        activeEnemies.add(new Enemy("slime", 50, 10, 1680, 1920)); 
-        activeEnemies.add(new Enemy("orc", 80, 15, 1200, 1920));   
+        activeEnemies.add(new Slime(1680, 1920));
+        activeEnemies.add(new Orc(1200, 1920));   
         
         activeChests.add("{\"x\": 384, \"y\": 960, \"item\": \"potion\", \"opened\": false}");
         activeChests.add("{\"x\": 1920, \"y\": 480, \"item\": \"sword\", \"opened\": false}");

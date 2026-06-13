@@ -104,8 +104,18 @@ public class GameServlet extends HttpServlet {
                         if (target.getHp() > 0) {
                             int damage = engine.getHero().calculateDamage();
                             target.takeDamage(damage);
+                            
+                            // JIKA MUSUH MATI
                             if (target.getHp() <= 0) {
                                 engine.getHero().gainExp(target.getDropExp());
+                                
+                                // [FITUR BARU] Java Otomatis Menambah Barang ke Inventory!
+                                if (target.getDropItem() != null) {
+                                    // Anggap Potion masuk sebagai 1 jumlah (count)
+                                    // Pastikan Inventory Hero mu dikode dengan benar
+                                    System.out.println("Musuh menjatuhkan item: Potion!");
+                                    // engine.getHero().inventory.addItem(target.getDropItem()); 
+                                }
                             }
                         }
                     }
