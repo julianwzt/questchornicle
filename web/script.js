@@ -28,9 +28,20 @@ const PLAYER_TEXTURES = {
     dirMap: { up: "atas", down: "bawah", left: "kiri", right: "kanan" },
   },
 };
-function getPlayerTextureKey(job, direction, frameNum = 1) {
+function getPlayerTextureKey(
+  job,
+  direction,
+  frameNum = 1,
+  options = { useAttackTexture: false },
+) {
   const config = PLAYER_TEXTURES[job] || PLAYER_TEXTURES.Warrior;
-  return `${config.prefix}_${config.dirMap[direction] || "bawah"}_${frameNum}`;
+  const baseKey = `${config.prefix}_${config.dirMap[direction] || "bawah"}_${frameNum}`;
+
+  if (options.useAttackTexture && job === "Warrior") {
+    return `${baseKey}_nyerang`;
+  }
+
+  return baseKey;
 }
 
 loadAsset("tiles", "0", "res/tiles/grass.png");
@@ -50,9 +61,18 @@ Object.values(PLAYER_TEXTURES).forEach(({ prefix }) => {
   });
 });
 
+["atas", "bawah", "kiri", "kanan"].forEach((dir) => {
+  loadAsset(
+    "player",
+    `war_${dir}_1_nyerang`,
+    `res/player/war_${dir}_1_nyerang.png`,
+  );
+});
+
 loadAsset("objects", "sword", "res/objects/sword_normal.png");
 loadAsset("objects", "potion", "res/objects/potion_red.png");
 loadAsset("objects", "chest", "res/objects/chest.png");
+loadAsset("objects", "chest_opened", "res/objects/chest_opened.png");
 loadAsset("enemy", "slime_1", "res/monster/greenslime_down_1.png");
 loadAsset("enemy", "slime_2", "res/monster/greenslime_down_2.png");
 loadAsset("enemy", "orc_1", "res/monster/orc_down_1.png");
@@ -532,6 +552,7 @@ function gameOver() {
 function stageClear() {
   if (stageFinished) return;
   stageFinished = true;
+  gameState = "STAGE_CLEAR";
   ctx.fillStyle = "rgba(0,0,0,0.8)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "white";
@@ -545,11 +566,21 @@ function stageClear() {
     fetch("GameServlet", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `action=new_game`,
+      body: `action=new_game&job=${encodeURIComponent(player.job || "Warrior")}`,
     })
       .then((res) => res.json())
       .then((data) => {
-        if (!data.error) {
+        if (!data.error && data.player) {
+          player.x = data.player.x;
+          player.y = data.player.y;
+          player.hp = data.player.hp;
+          player.maxHp = data.player.maxHp;
+          player.mp = data.player.mp;
+          player.maxMp = data.player.maxMp;
+          player.setJob(data.player.job || player.job || "Warrior");
+          serverLevel = data.player.level || 1;
+          serverExp = data.player.exp || 0;
+          serverMaxExp = data.player.maxExp || 100;
           enemies = parseServerEnemies(data.enemies);
           chests = data.chests;
           projectiles = [];
@@ -868,12 +899,19 @@ function drawChests() {
       cy > canvas.height
     )
       return;
-    let img = assets.objects["chest"];
-    if (img && img.complete && !chest.opened) {
-      ctx.drawImage(img, cx, cy, TILE_SIZE, TILE_SIZE);
-    } else if (chest.opened) {
-      ctx.fillStyle = "#7f8c8d";
-      ctx.fillRect(cx + 8, cy + 8, TILE_SIZE - 16, TILE_SIZE - 16);
+    if (chest.opened) {
+      const openedImg = assets.objects["chest_opened"];
+      if (openedImg && openedImg.complete) {
+        ctx.drawImage(openedImg, cx, cy, TILE_SIZE, TILE_SIZE);
+      } else {
+        ctx.fillStyle = "#7f8c8d";
+        ctx.fillRect(cx + 8, cy + 8, TILE_SIZE - 16, TILE_SIZE - 16);
+      }
+    } else {
+      const closedImg = assets.objects["chest"];
+      if (closedImg && closedImg.complete) {
+        ctx.drawImage(closedImg, cx, cy, TILE_SIZE, TILE_SIZE);
+      }
     }
   });
 }
@@ -1047,13 +1085,17 @@ function updatePlayer() {
 }
 
 function gameLoop() {
-  if (gameState === "PLAYING") {
-    updatePlayer();
-    updateProjectiles();
-    updateEnemies();
-    updateCamera();
+  if (gameState !== "PLAYING") return;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  updatePlayer();
+  updateProjectiles();
+  updateEnemies();
+
+  if (gameState !== "PLAYING") return;
+
+  updateCamera();
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     drawMap();
     drawChests();
@@ -1088,6 +1130,7 @@ function gameLoop() {
       player.job || "Warrior",
       player.direction,
       1,
+      { useAttackTexture: player.job === "Warrior" && player.isAttacking },
     );
     const img = assets.player[textureKey];
     if (img && img.complete && img.naturalWidth > 0) {
@@ -1115,6 +1158,9 @@ function gameLoop() {
       );
       ctx.stroke();
     }
-    requestAnimationFrame(gameLoop);
+
+    if (gameState === "PLAYING") {
+      requestAnimationFrame(gameLoop);
+    }
   }
 }

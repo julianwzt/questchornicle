@@ -28,9 +28,20 @@ const PLAYER_TEXTURES = {
     dirMap: { up: "atas", down: "bawah", left: "kiri", right: "kanan" },
   },
 };
-function getPlayerTextureKey(job, direction, frameNum = 1) {
+function getPlayerTextureKey(
+  job,
+  direction,
+  frameNum = 1,
+  options = { useAttackTexture: false },
+) {
   const config = PLAYER_TEXTURES[job] || PLAYER_TEXTURES.Warrior;
-  return `${config.prefix}_${config.dirMap[direction] || "bawah"}_${frameNum}`;
+  const baseKey = `${config.prefix}_${config.dirMap[direction] || "bawah"}_${frameNum}`;
+
+  if (options.useAttackTexture && job === "Warrior") {
+    return `${baseKey}_nyerang`;
+  }
+
+  return baseKey;
 }
 
 loadAsset("tiles", "0", "res/tiles/grass.png");
@@ -50,9 +61,18 @@ Object.values(PLAYER_TEXTURES).forEach(({ prefix }) => {
   });
 });
 
+["atas", "bawah", "kiri", "kanan"].forEach((dir) => {
+  loadAsset(
+    "player",
+    `war_${dir}_1_nyerang`,
+    `res/player/war_${dir}_1_nyerang.png`,
+  );
+});
+
 loadAsset("objects", "sword", "res/objects/sword_normal.png");
 loadAsset("objects", "potion", "res/objects/potion_red.png");
 loadAsset("objects", "chest", "res/objects/chest.png");
+loadAsset("objects", "chest_opened", "res/objects/chest_opened.png");
 loadAsset("enemy", "slime_1", "res/monster/greenslime_down_1.png");
 loadAsset("enemy", "slime_2", "res/monster/greenslime_down_2.png");
 loadAsset("enemy", "orc_1", "res/monster/orc_down_1.png");
@@ -532,6 +552,7 @@ function gameOver() {
 function stageClear() {
   if (stageFinished) return;
   stageFinished = true;
+  gameState = "STAGE_CLEAR";
   ctx.fillStyle = "rgba(0,0,0,0.8)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "white";
@@ -545,11 +566,21 @@ function stageClear() {
     fetch("GameServlet", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `action=new_game`,
+      body: `action=new_game&job=${encodeURIComponent(player.job || "Warrior")}`,
     })
       .then((res) => res.json())
       .then((data) => {
-        if (!data.error) {
+        if (!data.error && data.player) {
+          player.x = data.player.x;
+          player.y = data.player.y;
+          player.hp = data.player.hp;
+          player.maxHp = data.player.maxHp;
+          player.mp = data.player.mp;
+          player.maxMp = data.player.maxMp;
+          player.setJob(data.player.job || player.job || "Warrior");
+          serverLevel = data.player.level || 1;
+          serverExp = data.player.exp || 0;
+          serverMaxExp = data.player.maxExp || 100;
           enemies = parseServerEnemies(data.enemies);
           chests = data.chests;
           projectiles = [];
@@ -868,12 +899,19 @@ function drawChests() {
       cy > canvas.height
     )
       return;
-    let img = assets.objects["chest"];
-    if (img && img.complete && !chest.opened) {
-      ctx.drawImage(img, cx, cy, TILE_SIZE, TILE_SIZE);
-    } else if (chest.opened) {
-      ctx.fillStyle = "#7f8c8d";
-      ctx.fillRect(cx + 8, cy + 8, TILE_SIZE - 16, TILE_SIZE - 16);
+    if (chest.opened) {
+      const openedImg = assets.objects["chest_opened"];
+      if (openedImg && openedImg.complete) {
+        ctx.drawImage(openedImg, cx, cy, TILE_SIZE, TILE_SIZE);
+      } else {
+        ctx.fillStyle = "#7f8c8d";
+        ctx.fillRect(cx + 8, cy + 8, TILE_SIZE - 16, TILE_SIZE - 16);
+      }
+    } else {
+      const closedImg = assets.objects["chest"];
+      if (closedImg && closedImg.complete) {
+        ctx.drawImage(closedImg, cx, cy, TILE_SIZE, TILE_SIZE);
+      }
     }
   });
 }
@@ -1047,74 +1085,81 @@ function updatePlayer() {
 }
 
 function gameLoop() {
-  if (gameState === "PLAYING") {
-    updatePlayer();
-    updateProjectiles();
-    updateEnemies();
-    updateCamera();
+  if (gameState !== "PLAYING") return;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  updatePlayer();
+  updateProjectiles();
+  updateEnemies();
 
-    drawMap();
-    drawChests();
-    drawEnemies();
+  if (gameState !== "PLAYING") return;
 
-    // RENDER PELURU/SIHIR
-    projectiles.forEach((p) => {
-      const img = assets.projectile[p.textureName];
-      if (img && img.complete && img.naturalWidth > 0) {
-        ctx.drawImage(img, p.x - camera.x, p.y - camera.y, p.size, p.size);
-      } else {
-        ctx.fillStyle = p.kind === "mage" ? "#3498db" : "#bdc3c7";
-        ctx.beginPath();
-        ctx.arc(p.x - camera.x, p.y - camera.y, 8, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    });
+  updateCamera();
 
-    // Teks melayang (Damage, Item, dll)
-    for (let i = floatingTexts.length - 1; i >= 0; i--) {
-      let text = floatingTexts[i];
-      ctx.fillStyle = text.color;
-      ctx.font = "bold 20px Arial";
-      ctx.fillText(text.text, text.x - camera.x, text.y - camera.y);
-      text.y -= 1;
-      text.life--;
-      if (text.life <= 0) floatingTexts.splice(i, 1);
-    }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Gambar Karakter Pahlawan
-    const textureKey = getPlayerTextureKey(
-      player.job || "Warrior",
-      player.direction,
-      1,
-    );
-    const img = assets.player[textureKey];
+  drawMap();
+  drawChests();
+  drawEnemies();
+
+  // RENDER PELURU/SIHIR
+  projectiles.forEach((p) => {
+    const img = assets.projectile[p.textureName];
     if (img && img.complete && img.naturalWidth > 0) {
-      const yBobbing = player.frameNum === 2 ? -4 : 0;
-      ctx.drawImage(
-        img,
-        player.x - camera.x,
-        player.y - camera.y + yBobbing,
-        player.width,
-        player.height,
-      );
-    }
-
-    //Skill 2 (Bertahan)
-    if (player.isDefending) {
-      ctx.strokeStyle = "#3498db";
-      ctx.lineWidth = 3;
+      ctx.drawImage(img, p.x - camera.x, p.y - camera.y, p.size, p.size);
+    } else {
+      ctx.fillStyle = p.kind === "mage" ? "#3498db" : "#bdc3c7";
       ctx.beginPath();
-      ctx.arc(
-        player.x + 24 - camera.x,
-        player.y + 24 - camera.y,
-        30,
-        0,
-        Math.PI * 2,
-      );
-      ctx.stroke();
+      ctx.arc(p.x - camera.x, p.y - camera.y, 8, 0, Math.PI * 2);
+      ctx.fill();
     }
+  });
+
+  // Teks melayang (Damage, Item, dll)
+  for (let i = floatingTexts.length - 1; i >= 0; i--) {
+    let text = floatingTexts[i];
+    ctx.fillStyle = text.color;
+    ctx.font = "bold 20px Arial";
+    ctx.fillText(text.text, text.x - camera.x, text.y - camera.y);
+    text.y -= 1;
+    text.life--;
+    if (text.life <= 0) floatingTexts.splice(i, 1);
+  }
+
+  // Gambar Karakter Pahlawan
+  const textureKey = getPlayerTextureKey(
+    player.job || "Warrior",
+    player.direction,
+    1,
+    { useAttackTexture: player.job === "Warrior" && player.isAttacking },
+  );
+  const img = assets.player[textureKey];
+  if (img && img.complete && img.naturalWidth > 0) {
+    const yBobbing = player.frameNum === 2 ? -4 : 0;
+    ctx.drawImage(
+      img,
+      player.x - camera.x,
+      player.y - camera.y + yBobbing,
+      player.width,
+      player.height,
+    );
+  }
+
+  //Skill 2 (Bertahan)
+  if (player.isDefending) {
+    ctx.strokeStyle = "#3498db";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(
+      player.x + 24 - camera.x,
+      player.y + 24 - camera.y,
+      30,
+      0,
+      Math.PI * 2,
+    );
+    ctx.stroke();
+  }
+
+  if (gameState === "PLAYING") {
     requestAnimationFrame(gameLoop);
   }
 }
