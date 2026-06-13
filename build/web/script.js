@@ -88,6 +88,32 @@ const projectileDirMap = {
 // [FITUR BARU] Load Aset Batu (karena cuma ada arah bawah, kita load 1 saja)
 loadAsset("projectile", `rock_down_1`, `res/projectile/rock_down_1.png`);
 
+// [FITUR BARU] Sound Effect System
+const SFX_VOLUME = 0.4;
+const sfx = {
+  attack: new Audio("res/sound/cuttree.wav"),
+  hit: new Audio("res/sound/hitmonster.wav"),
+  hurt: new Audio("res/sound/receivedamage.wav"),
+  pickup: new Audio("res/sound/coin.wav"),
+  chest: new Audio("res/sound/unlock.wav"),
+  levelup: new Audio("res/sound/levelup.wav"),
+};
+Object.values(sfx).forEach((a) => {
+  a.volume = SFX_VOLUME;
+  a.preload = "auto";
+});
+function playSfx(name) {
+  const base = sfx[name];
+  if (!base) return;
+  try {
+    const node = base.cloneNode(); // biar bisa overlap kalau dipanggil cepat
+    node.volume = SFX_VOLUME;
+    node.play().catch(() => {});
+  } catch (e) {
+    // ignore audio errors (misal browser belum interaksi user)
+  }
+}
+
 const TILE_SIZE = 48;
 let activeMap = [];
 let MAP_WIDTH = 0;
@@ -135,6 +161,7 @@ const ENEMY_AGGRO_RANGE = 300;
 const ENEMY_DEAGGRO_RANGE = 500;
 const ENEMY_ATTACK_RANGE = 50;
 const ENEMY_PATROL_INTERVAL = 120;
+let playerHitFlash = 0; // [FITUR BARU] efek flash merah saat player kena damage
 
 function parseServerEnemies(serverEnemies) {
   if (!serverEnemies) return [];
@@ -145,6 +172,7 @@ function parseServerEnemies(serverEnemies) {
     e.patrolDir = { x: 0, y: 0 };
     e.patrolTimer = 0;
     e.attackCooldown = 0;
+    e.hitFlash = 0;
     e.getCenter = function () {
       return { x: this.x + 20, y: this.y + 20 };
     };
@@ -164,6 +192,7 @@ let player = {
   mp: 100,
   maxMp: 100,
   isAttacking: false,
+  isMoving: false,
   direction: "down",
   frameCounter: 0,
   frameNum: 1,
@@ -244,11 +273,14 @@ let player = {
     if (this.isAttacking) return;
     this.isAttacking = true;
     this.slashColor = color;
+    playSfx("attack"); // [FITUR BARU] sound effect attack
     let atkBox = { x: this.x - 20, y: this.y - 20, size: this.width + 40 };
 
     enemies.forEach((enemy, idx) => {
       if (enemy.alive && checkCollisionBox(atkBox, enemy)) {
         showFloatingDamage(enemy.x, enemy.y, "HIT!", "#f1c40f");
+        playSfx("hit"); // [FITUR BARU] sound effect kena hit
+        enemy.hitFlash = 8; // [FITUR BARU] efek flash merah saat enemy kena hit
         let kbX = enemy.x;
         let kbY = enemy.y;
         let kbForce = 35;
@@ -275,13 +307,15 @@ let player = {
                 enemies[i].alive = serverData.alive;
               }
             });
-            if (data.player.level > serverLevel)
+            if (data.player.level > serverLevel) {
               showFloatingDamage(
                 player.x,
                 player.y - 20,
                 "LEVEL UP!",
                 "#f1c40f",
               );
+              playSfx("levelup"); // [FITUR BARU] sound effect level up
+            }
 
             player.hp = data.player.hp;
             player.maxHp = data.player.maxHp;
@@ -395,6 +429,7 @@ function usePotion(index) {
 
 // [FITUR BARU] Spawn Projectile menyesuaikan Fireball dan Rock
 function spawnProjectile(x, y, dir, damage, type = "archer") {
+  playSfx("attack"); // [FITUR BARU] sound effect attack untuk ranged
   let vx = 0,
     vy = 0;
   if (dir === "up") vy = -8;
@@ -442,6 +477,8 @@ function updateProjectiles() {
         checkCollision(p.x, p.y, p.size, p.size, enemy)
       ) {
         showFloatingDamage(enemy.x, enemy.y, "HIT!", "#3498db");
+        playSfx("hit"); // [FITUR BARU] sound effect kena hit
+        enemy.hitFlash = 8; // [FITUR BARU] efek flash merah saat enemy kena hit
 
         let kbX = enemy.x;
         let kbY = enemy.y;
@@ -470,13 +507,16 @@ function updateProjectiles() {
               }
             });
 
-            if (data.player.level > serverLevel)
+            if (data.player.level > serverLevel) {
               showFloatingDamage(
                 player.x,
                 player.y - 20,
                 "LEVEL UP!",
                 "#f1c40f",
               );
+              playSfx("levelup"); // [FITUR BARU] sound effect level up
+            }
+
             player.hp = data.player.hp;
             player.maxHp = data.player.maxHp;
             player.mp = data.player.mp;
@@ -713,6 +753,7 @@ window.addEventListener("keydown", (e) => {
           })
         ) {
           showFloatingDamage(chest.x, chest.y, "ITEM!", "#f1c40f");
+          playSfx("pickup"); // [FITUR BARU] sound effect pickup item
           fetch("GameServlet", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -960,6 +1001,8 @@ function updateEnemies() {
           if (player.isDefending) dmg = Math.floor(dmg * 0.3);
           player.hp -= dmg;
           showFloatingDamage(player.x, player.y, dmg, "red");
+          playSfx("hurt"); // [FITUR BARU] sound effect player kena damage
+          playerHitFlash = 10; // [FITUR BARU] efek flash merah di layar saat kena damage
           fetch("GameServlet", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -997,6 +1040,17 @@ function drawEnemies() {
     if (img && img.complete && img.naturalWidth > 0) {
       ctx.drawImage(img, ex, ey, enemy.width, enemy.height);
     }
+
+    // [FITUR BARU] Efek flash merah saat enemy kena damage
+    if (enemy.hitFlash > 0) {
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = "#ff0000";
+      ctx.fillRect(ex, ey, enemy.width, enemy.height);
+      ctx.restore();
+      enemy.hitFlash--;
+    }
+
     const hpPercent = enemy.hp / enemy.maxHp;
     ctx.fillStyle = "#c0392b";
     ctx.fillRect(ex, ey - 12, enemy.width, 8);
@@ -1035,6 +1089,7 @@ function updatePlayer() {
     player.x = newX;
     player.y = newY;
   }
+  player.isMoving = isMoving; // [FITUR BARU] dipakai untuk animasi walk
   if (isMoving) {
     player.frameCounter++;
     if (player.frameCounter > 10) {
@@ -1091,7 +1146,8 @@ function gameLoop() {
     );
     const img = assets.player[textureKey];
     if (img && img.complete && img.naturalWidth > 0) {
-      const yBobbing = player.frameNum === 2 ? -4 : 0;
+      // [FITUR BARU] Animasi walk lebih halus (bobbing sinus saat bergerak)
+      const yBobbing = player.isMoving ? Math.sin(Date.now() / 80) * 3 : 0;
       ctx.drawImage(
         img,
         player.x - camera.x,
@@ -1099,6 +1155,40 @@ function gameLoop() {
         player.width,
         player.height,
       );
+    }
+
+    // [FITUR BARU] Animasi Attack Sederhana
+    if (player.isAttacking) {
+      const px = player.x - camera.x + player.width / 2;
+      const py = player.y - camera.y + player.height / 2;
+      let angle = 0;
+      if (player.direction === "up") angle = -Math.PI / 2;
+      else if (player.direction === "down") angle = Math.PI / 2;
+      else if (player.direction === "left") angle = Math.PI;
+      else angle = 0;
+
+      if (player.job === "Mage" || player.job === "Archer") {
+        // Efek cast/lepas tembakan untuk Mage & Archer
+        let glowColor = player.job === "Mage" ? "#3498db" : "#2ecc71";
+        let gx = px + Math.cos(angle) * 30;
+        let gy = py + Math.sin(angle) * 30;
+        ctx.save();
+        ctx.globalAlpha = 0.6;
+        ctx.fillStyle = glowColor;
+        ctx.beginPath();
+        ctx.arc(gx, gy, 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      } else {
+        // Efek slash untuk Warrior (melee)
+        ctx.save();
+        ctx.strokeStyle = player.slashColor;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(px, py, player.width * 0.7, angle - 0.8, angle + 0.8);
+        ctx.stroke();
+        ctx.restore();
+      }
     }
 
     //Skill 2 (Bertahan)
@@ -1115,6 +1205,17 @@ function gameLoop() {
       );
       ctx.stroke();
     }
+
+    // [FITUR BARU] Efek flash merah di layar saat player kena damage
+    if (playerHitFlash > 0) {
+      ctx.save();
+      ctx.globalAlpha = playerHitFlash / 25;
+      ctx.fillStyle = "#ff0000";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.restore();
+      playerHitFlash--;
+    }
+
     requestAnimationFrame(gameLoop);
   }
 }
