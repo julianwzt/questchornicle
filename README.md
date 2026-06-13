@@ -1,6 +1,6 @@
 ## Persyaratan Sistem
 Sebelum menjalankan proyek ini, pastikan sistem kamu sudah terinstal:
-1. **Java Development Kit (JDK) 8** atau lebih baru.
+1. **Java Development Kit (JDK) 21** atau lebih baru.
 2. **IDE NetBeans** (disarankan untuk Java EE / Web Application).
 3. **Apache Tomcat Server** (biasanya sudah bawaan NetBeans).
 4. **XAMPP** (untuk menjalankan MySQL/MariaDB).
