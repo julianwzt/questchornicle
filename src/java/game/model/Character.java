@@ -20,9 +20,32 @@ public abstract class Character implements Attackable, Levelable, java.io.Serial
 
     public abstract String getDescription();
 
-    // Getters wajib untuk output JSON di GameEngine
     public String getNama() {
         return nama; 
+    }
+
+    public int getAtk() {
+        return atk;
+    }
+
+    public void setAtk(int atk) {
+        this.atk = atk;
+    }
+
+    public int getDef() {
+        return def;
+    }
+
+    public void setDef(int def) {
+        this.def = def;
+    }
+
+    public int getExp() {
+        return exp;
+    }
+
+    public void setExp(int exp) {
+        this.exp = exp;
     }
     
     public int getHp() {
@@ -39,9 +62,5 @@ public abstract class Character implements Attackable, Levelable, java.io.Serial
     
     public void setHp(int hp) {
         this.hp = hp; 
-    }
-    
-    void heal(int i) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

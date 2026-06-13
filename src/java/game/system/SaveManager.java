@@ -10,7 +10,6 @@ public class SaveManager {
 
     public SaveManager() {
         try {
-            // LANGKAH KRUSIAL: Memaksa Tomcat mengenali Driver MySQL saat dijalankan
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
             System.err.println("Driver JDBC tidak ditemukan! Pastikan file connector .jar ada di web/WEB-INF/lib/");
@@ -53,9 +52,8 @@ public class SaveManager {
                 String job = rs.getString("job");
                 int hp = rs.getInt("hp");
                 
-                // FILTER UTAMA: Jika baris data ada di DB tapi isinya kosong/default (HP 0 atau job null)
                 if (job == null || job.isEmpty() || hp <= 0) {
-                    return null; // Blokir dan anggap slot kosong
+                    return null;
                 }
                 
                 Hero hero = new Hero(rs.getString("nama"));

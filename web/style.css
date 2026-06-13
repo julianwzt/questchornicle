@@ -1,124 +1,318 @@
-:root { 
-    --primary: #2c3e50; 
-    --accent: #e67e22; 
-    --text: #ecf0f1; 
+:root {
+  --primary: #2c3e50;
+  --accent: #e67e22;
+  --text: #ecf0f1;
 }
 
-body { 
-    margin: 0; 
-    background: #1a1a1a; 
-    font-family: 'Segoe UI', sans-serif; 
-    color: var(--text); 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    height: 100vh; 
-    overflow: hidden; 
+body {
+  margin: 0;
+  background: #1a1a1a;
+  font-family: "Segoe UI", sans-serif;
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
 }
 
-#game-container { 
-    position: relative; 
-    width: 800px; 
-    height: 600px; 
-    background: #34495e; 
-    outline: 5px solid #444; 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+#game-container {
+  position: relative;
+  width: 800px;
+  height: 600px;
+  background: #34495e;
+  outline: 5px solid #444;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
 }
 
-canvas { 
-    display: block;
-    margin: 0 auto;
-    max-width: 100%;
-    max-height: 100vh;
-    width: auto;
-    height: auto;
-    object-fit: contain; /* Kunci rahasia agar tidak gepeng */
-    image-rendering: pixelated; /* Menjaga grafis 2D tetap tajam dan tidak blur */
-    border: 4px solid #2c3e50; /* Tambahan border agar terlihat seperti game retro */ 
+canvas {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 100vh;
+  width: auto;
+  height: auto;
+  object-fit: contain; /* Kunci rahasia agar tidak gepeng */
+  image-rendering: pixelated; /* Menjaga grafis 2D tetap tajam dan tidak blur */
+  border: 4px solid #2c3e50; /* Tambahan border agar terlihat seperti game retro */
 }
 
-.overlay { 
-    position: absolute; 
-    top: 0; left: 0; 
-    width: 100%; height: 100%; 
-    display: none; 
-    flex-direction: column; 
-    justify-content: center; 
-    align-items: center; 
-    background: rgba(0,0,0,0.85); 
-    z-index: 10; 
-    pointer-events: auto; /* Memastikan overlay bisa menerima klik mouse */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 10;
+  pointer-events: auto; /* Memastikan overlay bisa menerima klik mouse */
 }
 
-.active { 
-    display: flex; 
+.active {
+  display: flex;
 }
 
 .game-title {
-    color: var(--accent);
-    font-size: 3.5rem;
-    text-shadow: 3px 3px 0 #000;
-    margin-bottom: 30px;
+  color: var(--accent);
+  font-size: 3.5rem;
+  text-shadow: 3px 3px 0 #000;
+  margin-bottom: 30px;
 }
 
 /* Navigasi / Efek Pilih */
-.selected { 
-    border: 4px solid white !important; 
-    background: var(--accent) !important; 
-    transform: scale(1.1); 
+.selected {
+  border: 4px solid white !important;
+  background: var(--accent) !important;
+  transform: scale(1.1);
 }
 
-.menu-btn, .job-card { 
-    background: #444; 
-    border: 2px solid transparent; 
-    color: white; 
-    padding: 15px; 
-    margin: 10px; 
-    cursor: pointer; 
-    transition: 0.2s; 
-    width: 200px; 
-    text-align: center; 
-    font-weight: bold;
-    user-select: none;
+.menu-btn,
+.job-card {
+  background: #444;
+  border: 2px solid transparent;
+  color: white;
+  padding: 15px;
+  margin: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+  width: 200px;
+  text-align: center;
+  font-weight: bold;
+  user-select: none;
 }
 
-.menu-btn:hover, .job-card:hover {
-    background: #555;
-    border-color: #f1c40f;
+.menu-btn:hover,
+.job-card:hover {
+  background: #555;
+  border-color: #f1c40f;
 }
 
-.settings-box { 
-    background: #2c3e50; 
-    padding: 20px; 
-    border-radius: 10px; 
-    border: 2px solid var(--accent); 
-    width: 350px; 
-    text-align: left; 
+.settings-box {
+  background: #2c3e50;
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid var(--accent);
+  width: 350px;
+  text-align: left;
 }
 
-#hud { 
-    position: absolute; 
-    top: 10px; left: 10px; 
-    background: rgba(0,0,0,0.7); 
-    padding: 15px; 
-    border-radius: 5px; 
-    display: none; 
-    pointer-events: none; 
-    border: 1px solid var(--accent); 
-    z-index: 5;
+#hud {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 15px;
+  border-radius: 5px;
+  display: none;
+  pointer-events: none;
+  border: 1px solid var(--accent);
+  z-index: 5;
 }
 
-.hp-bar { 
-    width: 150px; 
-    height: 12px; 
-    background: #c0392b; 
-    margin-top: 5px; 
-    border: 1px solid #000;
+.hp-bar {
+  width: 150px;
+  height: 12px;
+  background: #c0392b;
+  margin-top: 5px;
+  border: 1px solid #000;
 }
 
-#hp-fill { 
-    height: 100%; 
-    background: #2ecc71; 
-    width: 100%; 
-    transition: width 0.2s ease-out; 
+#hp-fill {
+  height: 100%;
+  background: #2ecc71;
+  width: 100%;
+  transition: width 0.2s ease-out;
+}
+
+.inventory-container {
+  display: flex;
+  width: 750px;
+  height: 480px;
+  background: rgba(44, 62, 80, 0.95);
+  border: 4px solid #f1c40f;
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+  position: relative;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+/* --- Panel Kiri (Status) --- */
+.stats-panel {
+  width: 35%;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-right: 4px solid #f1c40f;
+  box-sizing: border-box;
+  border-radius: 8px 0 0 8px;
+}
+
+.stats-panel h2 {
+  text-align: center;
+  color: #f1c40f;
+  border-bottom: 2px solid #7f8c8d;
+  padding-bottom: 10px;
+  margin-top: 0;
+}
+
+.char-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 20px 0;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.char-info img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain; /* Mengunci rasio agar tidak gepeng/zoom */
+  image-rendering: pixelated;
+  background: #34495e;
+  border: 2px solid #bdc3c7;
+  border-radius: 5px;
+  display: block;
+}
+
+.char-info h3 {
+  margin: 0;
+  color: #3498db;
+  font-size: 20px;
+}
+.char-info p {
+  margin: 5px 0 0 0;
+  font-weight: bold;
+  color: #2ecc71;
+}
+
+.stats-list p {
+  display: flex;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  margin: 6px 0;
+  border-radius: 4px;
+  font-weight: bold;
+}
+.stats-list span:first-child {
+  color: #bdc3c7;
+}
+
+/* --- Panel Kanan (Item List) --- */
+.items-panel {
+  width: 65%;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.items-panel h2 {
+  color: #f1c40f;
+  border-bottom: 2px solid #7f8c8d;
+  padding-bottom: 10px;
+  margin-top: 0;
+}
+
+.items-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  flex-grow: 1;
+  padding-right: 10px;
+}
+
+/* Custom Scrollbar agar keren */
+.items-grid::-webkit-scrollbar {
+  width: 8px;
+}
+.items-grid::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+.items-grid::-webkit-scrollbar-thumb {
+  background: #f1c40f;
+  border-radius: 4px;
+}
+
+/* Kartu Barang (Item Card) */
+.item-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid #7f8c8d;
+  padding: 12px;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+.item-card:hover {
+  border-color: #f1c40f;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.item-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.item-info img {
+  width: 42px;
+  height: 42px;
+  image-rendering: pixelated;
+}
+
+.item-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ecf0f1;
+}
+.item-qty {
+  font-size: 14px;
+  color: #f1c40f;
+  margin-top: 3px;
+}
+
+.use-btn {
+  background: #27ae60;
+  border: 2px solid #2ecc71;
+  color: white;
+  padding: 8px 16px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.use-btn:hover {
+  background: #2ecc71;
+  transform: scale(1.05);
+}
+
+/* Tombol Tutup Merah di Pojok */
+.close-btn {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  background: #e74c3c;
+  border: 2px solid #c0392b;
+  color: white;
+  padding: 10px 20px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  transition: 0.2s;
+}
+
+.close-btn:hover {
+  background: #c0392b;
+  transform: scale(1.05);
 }

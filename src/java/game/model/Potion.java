@@ -9,7 +9,6 @@ public class Potion extends Item {
 
     @Override
     public void use(Character target) {
-        // Mengembalikan nyawa target sesuai kapasitas potion
         int newHp = target.getHp() + healAmount;
         if (newHp > target.getMaxHp()) {
             newHp = target.getMaxHp();

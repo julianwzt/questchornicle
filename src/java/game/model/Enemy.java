@@ -1,45 +1,60 @@
 package game.model;
 
 import java.util.Random;
+
 public class Enemy extends Character {
-    private String nama;
-    private int hp;
-    private int damage;
-    private int dropExp;
     private int x;
     private int y;
     private Item dropItem;
+    private int dropExp;
 
-    public Enemy(String goblin, int i, int i0) {
-        this.nama = nama;
-        this.hp = hp;
-        this.damage = damage;
-    }
-    
-    public Item dropLoot() {
-        return dropItem;
-    }
-
-    public void setDropItem(Item item) {
-        this.dropItem = item;
-    }
-    public Enemy(String nama, int hp, int atk, int x, int y) {
-
-        this.nama = nama;
-        this.hp = hp;
+    public Enemy(String nama, int hp, int damage, int x, int y) {
+        this.nama = nama;       
+        this.hp = hp;          
         this.maxHp = hp;
-        this.atk = atk;
-
+        this.atk = damage;     
         this.x = x;
         this.y = y;
-}
+        this.dropExp = 50;     
+    }
+
+    // --- GETTER & SETTER KHUSUS ENEMY ---
+    public int getX() {
+        return x; 
+    }
+    
+    public void setX(int x) {
+        this.x = x; 
+    }
+
+    public int getY() { return y; }
+    public void setY(int y) {
+        this.y = y; 
+    }
+
+    public int getDamage() {
+        return this.atk; 
+    }
+
+    public Item getDropItem() {
+        return dropItem; 
+    }
+    
+    public void setDropItem(Item dropItem) {
+        this.dropItem = dropItem; 
+    }
+
+    public int getDropExp() {
+        return dropExp; 
+    }
+
+    // --- LOGIKA AI & RPG ---
     public String getAIAction() {
         return "attack";
     }
 
-    // AI move toward player
+    // AI move toward player (Fitur aslimu)
     public void moveToward(Hero hero) {
-
         if (hero.getX() > x) x += 2;
         if (hero.getX() < x) x -= 2;
 
@@ -47,64 +62,32 @@ public class Enemy extends Character {
         if (hero.getY() < y) y -= 2;
     }
 
-    // enemy attack player
     @Override
     public void attack(Character target) {
-
-        int damage = calculateDamage();
-
-        target.takeDamage(damage);
-
-        System.out.println(nama + " attacks for " + damage);
+        int finalDamage = calculateDamage();
+        target.takeDamage(finalDamage);
+        System.out.println(nama + " attacks for " + finalDamage);
     }
 
     @Override
     public int calculateDamage() {
-
+        // Fitur aslimu: Damage dasar ditambah angka acak 0-7
         Random random = new Random();
-
         return this.atk + random.nextInt(8);
     }
 
     @Override
     public void gainExp(int amount) {
+        // Musuh tidak perlu mendapatkan exp
     }
 
     @Override
     public void levelUp() {
+        // Musuh tidak perlu naik level
     }
 
     @Override
     public String getDescription() {
         return "Enemy: " + nama;
     }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public String getNama() {
-        return nama;
-    }
-
-    public int getHp() {
-        return hp;
-    }
-
-    public int getDamage() {
-        return damage;
-    }
-
-    public int getDropExp() {
-        return dropExp;
-    }
-
-    public Item getDropItem() {
-        return dropItem;
-    }
-    
 }

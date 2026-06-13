@@ -57,6 +57,12 @@
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/monster/skeletonlord_right_1.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/monster/orc_up_2.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/monster/orc_up_1.png</file>
+            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/src/java/game/system/Saveable.java</file>
+            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/src/java/game/model/Goblin.java</file>
+            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/src/java/game/model/Item.java</file>
+            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/src/java/game/model/Levelable.java</file>
+            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/src/java/game/model/Orc.java</file>
+            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/src/java/game/model/Room.java</file>
         </group>
     </open-files>
 </project-private>
