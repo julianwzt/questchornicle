@@ -63,7 +63,7 @@ let bossDefeated = false;
 function initBoss() {
     boss = {
         nama: "Dragon",
-        skin: "dragon",
+        skin: "skeletonlord",
         hp: 400,
         maxHp: 400,
         damage: 40,
@@ -368,8 +368,8 @@ loadAsset("enemy", "orc_1", "res/monster/orc_down_1.png");
 loadAsset("enemy", "orc_2", "res/monster/orc_down_2.png");
 loadAsset("enemy", "bat_1", "res/monster/bat_down_1.png");
 loadAsset("enemy", "bat_2", "res/monster/bat_down_2.png");
-loadAsset("enemy", "dragon_1", "res/monster/dragon_down_1.png");
-loadAsset("enemy", "dragon_2", "res/monster/dragon_down_2.png");
+loadAsset("enemy", "skeletonlord_1", "res/monster/skeletonlord_down_1.png");
+loadAsset("enemy", "skeletonlord_2", "res/monster/skeletonlord_down_2.png");
 
 const projectileDirMap = {
   up: "atas",
