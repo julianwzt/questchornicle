@@ -308,6 +308,381 @@ function checkBossMeleeHit() {
     }
 }
 
+// ============================================
+// [FITUR BARU] MINI PUZZLE SYSTEM - PRESSURE PLATES (COMPLEX)
+// ============================================
+let puzzlePlates = [];
+let puzzleSolved = false;
+let puzzleGate = null;
+let currentPlateIndex = 0;
+let puzzleSequence = []; // Random sequence tiap game
+let puzzleTimer = 0;
+let puzzleTimeLimit = 600; // 10 detik (600 frames @ 60fps)
+let puzzleHintTimer = 0;
+let puzzleHintDuration = 180; // 3 detik hint muncul
+let puzzleAttempts = 0;
+let puzzleMaxAttempts = 3;
+let puzzlePlatePositions = [
+    { x: 480, y: 480 },
+    { x: 600, y: 480 },
+    { x: 720, y: 480 },
+    { x: 840, y: 480 }
+];
+
+function generatePuzzleSequence() {
+    // Generate random sequence 4 plates
+    puzzleSequence = [0, 1, 2, 3];
+    // Fisher-Yates shuffle
+    for (let i = puzzleSequence.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [puzzleSequence[i], puzzleSequence[j]] = [puzzleSequence[j], puzzleSequence[i]];
+    }
+}
+
+function shufflePlatePositions() {
+    // Shuffle posisi plate biar gak predictable
+    for (let i = puzzlePlatePositions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [puzzlePlatePositions[i], puzzlePlatePositions[j]] = [puzzlePlatePositions[j], puzzlePlatePositions[i]];
+    }
+}
+
+function initPuzzle() {
+    puzzleSolved = false;
+    currentPlateIndex = 0;
+    puzzleTimer = 0;
+    puzzleHintTimer = puzzleHintDuration;
+    puzzleAttempts = 0;
+
+    generatePuzzleSequence();
+    shufflePlatePositions();
+
+    // 4 Pressure Plates dengan posisi random
+    puzzlePlates = [
+        { x: puzzlePlatePositions[0].x, y: puzzlePlatePositions[0].y, width: 48, height: 48, activated: false, id: 0, color: "#7f8c8d", wrongFlash: 0 },
+        { x: puzzlePlatePositions[1].x, y: puzzlePlatePositions[1].y, width: 48, height: 48, activated: false, id: 1, color: "#7f8c8d", wrongFlash: 0 },
+        { x: puzzlePlatePositions[2].x, y: puzzlePlatePositions[2].y, width: 48, height: 48, activated: false, id: 2, color: "#7f8c8d", wrongFlash: 0 },
+        { x: puzzlePlatePositions[3].x, y: puzzlePlatePositions[3].y, width: 48, height: 48, activated: false, id: 3, color: "#7f8c8d", wrongFlash: 0 }
+    ];
+
+    // Gate/Portal
+    puzzleGate = {
+        x: 960,
+        y: 480,
+        width: 64,
+        height: 64,
+        active: false,
+        color: "#9b59b6"
+    };
+
+    // Show hint
+    showFloatingDamage(200, 100, "MEMORIZE!", "#f1c40f");
+    setTimeout(() => {
+        showFloatingDamage(200, 130, "3 SEC...", "#e67e22");
+    }, 1000);
+}
+
+function updatePuzzle() {
+    if (puzzleSolved) {
+        // Check if player enters gate
+        if (puzzleGate.active && checkCollision(
+            player.x, player.y, player.width, player.height,
+            puzzleGate
+        )) {
+            showFloatingDamage(player.x, player.y - 40, "ENTERING NEXT MAP...", "#f1c40f");
+        }
+        return;
+    }
+
+    // Timer countdown
+    if (puzzleHintTimer <= 0) {
+        puzzleTimer++;
+
+        // Warning kalo waktu hampir habis
+        if (puzzleTimer === Math.floor(puzzleTimeLimit * 0.5)) {
+            showFloatingDamage(200, 100, "HURRY!", "#e74c3c");
+        }
+        if (puzzleTimer === Math.floor(puzzleTimeLimit * 0.8)) {
+            showFloatingDamage(200, 100, "10 SEC!", "#e74c3c");
+        }
+
+        // Time's up!
+        if (puzzleTimer >= puzzleTimeLimit) {
+            showFloatingDamage(200, 100, "TIME UP!", "#e74c3c");
+            playSfx("receivedamage");
+            resetPuzzleState();
+            return;
+        }
+    } else {
+        puzzleHintTimer--;
+    }
+
+    // Update wrong flash
+    puzzlePlates.forEach(p => {
+        if (p.wrongFlash > 0) p.wrongFlash--;
+    });
+
+    // Check player collision with plates
+    puzzlePlates.forEach((plate, index) => {
+        if (!plate.activated && plate.wrongFlash <= 0) {
+            // Check collision
+            if (checkCollision(
+                player.x + 10, player.y + 10, player.width - 20, player.height - 20,
+                plate
+            )) {
+                // Check if correct sequence
+                if (index === puzzleSequence[currentPlateIndex]) {
+                    // Correct!
+                    plate.activated = true;
+                    plate.color = "#2ecc71";
+                    currentPlateIndex++;
+                    playSfx("powerup");
+
+                    // Show progress
+                    showFloatingDamage(plate.x, plate.y - 30, `${currentPlateIndex}/4 ✓`, "#2ecc71");
+
+                    // Check if all plates activated
+                    if (currentPlateIndex >= puzzleSequence.length) {
+                        puzzleSolved = true;
+                        puzzleGate.active = true;
+                        showFloatingDamage(puzzleGate.x, puzzleGate.y - 50, "PUZZLE SOLVED!", "#f1c40f");
+                        showFloatingDamage(puzzleGate.x, puzzleGate.y - 30, `ATTEMPTS: ${puzzleAttempts + 1}`, "#3498db");
+                        showFloatingDamage(puzzleGate.x, puzzleGate.y - 10, "GATE OPENED!", "#9b59b6");
+                        playSfx("fanfare");
+
+                        setTimeout(() => {
+                            showFloatingDamage(puzzleGate.x, puzzleGate.y - 70, "NEXT MAP READY!", "#e67e22");
+                        }, 1000);
+                    }
+                } else {
+                    // Wrong! Flash red and penalize
+                    plate.wrongFlash = 30;
+                    plate.color = "#e74c3c";
+                    showFloatingDamage(plate.x, plate.y - 30, "✗ WRONG!", "#e74c3c");
+                    playSfx("receivedamage");
+
+                    // Add time penalty
+                    puzzleTimer += 120; // +2 detik penalty
+                    showFloatingDamage(200, 60, "+2s!", "#e74c3c");
+
+                    // Reset after flash
+                    setTimeout(() => {
+                        if (!puzzleSolved) {
+                            plate.color = "#7f8c8d";
+                            plate.wrongFlash = 0;
+                        }
+                    }, 500);
+                }
+            }
+        }
+    });
+}
+
+function resetPuzzleState() {
+    puzzleAttempts++;
+    if (puzzleAttempts >= puzzleMaxAttempts) {
+        // Game over puzzle - spawn enemies or penalty
+        showFloatingDamage(200, 100, "FAILED!", "#e74c3c");
+        showFloatingDamage(200, 130, "MOBS!", "#e74c3c");
+        playSfx("receivedamage");
+        // Reset everything
+        puzzleAttempts = 0;
+    }
+
+    currentPlateIndex = 0;
+    puzzleTimer = 0;
+    puzzleHintTimer = puzzleHintDuration;
+
+    // Reshuffle positions
+    shufflePlatePositions();
+
+    puzzlePlates.forEach((p, i) => {
+        p.activated = false;
+        p.color = "#7f8c8d";
+        p.wrongFlash = 0;
+        p.x = puzzlePlatePositions[i].x;
+        p.y = puzzlePlatePositions[i].y;
+    });
+
+    showFloatingDamage(200, 100, "RESET!", "#f1c40f");
+    setTimeout(() => {
+        showFloatingDamage(200, 130, "AGAIN!", "#e67e22");
+    }, 1000);
+}
+
+function drawPuzzle() {
+    // Draw timer bar kalo hint udah ilang
+    if (puzzleHintTimer <= 0 && !puzzleSolved) {
+        const timerBarWidth = 200;
+        const timerBarX = 200 - timerBarWidth / 2;
+        const timerBarY = 200;
+        const timerPercent = 1 - (puzzleTimer / puzzleTimeLimit);
+
+        ctx.fillStyle = "#000";
+        ctx.fillRect(timerBarX - 2, timerBarY - 2, timerBarWidth + 4, 14);
+        ctx.fillStyle = timerPercent > 0.5 ? "#2ecc71" : timerPercent > 0.25 ? "#f39c12" : "#e74c3c";
+        ctx.fillRect(timerBarX, timerBarY, timerBarWidth * timerPercent, 10);
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(timerBarX, timerBarY, timerBarWidth, 10);
+
+        // Timer text
+        const secondsLeft = Math.ceil((puzzleTimeLimit - puzzleTimer) / 60);
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 12px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(`${secondsLeft}s`, timerBarX + timerBarWidth / 2, timerBarY + 9);
+        ctx.textAlign = "left";
+    }
+
+    // Draw attempt counter
+    if (!puzzleSolved) {
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 14px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(`ATTEMPT ${puzzleAttempts + 1}/${puzzleMaxAttempts}`, 200, 180);
+        ctx.textAlign = "left";
+    }
+
+    // Draw pressure plates
+    puzzlePlates.forEach((plate, index) => {
+        const px = plate.x - camera.x;
+        const py = plate.y - camera.y;
+
+        if (px + plate.width < 0 || px > canvas.width || 
+            py + plate.height < 0 || py > canvas.height) return;
+
+        // Base plate with shadow
+        ctx.fillStyle = "rgba(0,0,0,0.3)";
+        ctx.fillRect(px + 3, py + 3, plate.width, plate.height);
+
+        // Main plate
+        ctx.fillStyle = plate.wrongFlash > 0 ? "#e74c3c" : plate.color;
+        ctx.fillRect(px, py, plate.width, plate.height);
+
+        // Border
+        ctx.strokeStyle = plate.activated ? "#27ae60" : plate.wrongFlash > 0 ? "#c0392b" : "#34495e";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(px, py, plate.width, plate.height);
+
+        // Number indicator (show during hint, hide after)
+        if (puzzleHintTimer > 0 || plate.activated) {
+            ctx.fillStyle = plate.activated ? "#fff" : "#f1c40f";
+            ctx.font = "bold 20px Arial";
+            ctx.textAlign = "center";
+
+            // Show the CORRECT order number during hint
+            let displayNum = index + 1;
+            if (puzzleHintTimer > 0) {
+                // Find what position this plate is in the sequence
+                const seqPos = puzzleSequence.indexOf(index);
+                displayNum = seqPos + 1;
+            }
+
+            ctx.fillText(displayNum.toString(), px + plate.width/2, py + plate.height/2 + 7);
+            ctx.textAlign = "left";
+        } else {
+            // Show ? when hint is gone
+            ctx.fillStyle = "#95a5a6";
+            ctx.font = "bold 20px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("?", px + plate.width/2, py + plate.height/2 + 7);
+            ctx.textAlign = "left";
+        }
+
+        // Glow effect when activated
+        if (plate.activated) {
+            ctx.save();
+            ctx.shadowColor = "#2ecc71";
+            ctx.shadowBlur = 20;
+            ctx.strokeStyle = "#2ecc71";
+            ctx.lineWidth = 3;
+            ctx.strokeRect(px - 3, py - 3, plate.width + 6, plate.height + 6);
+            ctx.restore();
+        }
+
+        // Wrong flash effect
+        if (plate.wrongFlash > 0) {
+            ctx.save();
+            ctx.globalAlpha = plate.wrongFlash / 30;
+            ctx.fillStyle = "#ff0000";
+            ctx.fillRect(px, py, plate.width, plate.height);
+            ctx.restore();
+        }
+    });
+
+    // Draw hint text
+    if (puzzleHintTimer > 0 && !puzzleSolved) {
+        const hintSeconds = Math.ceil(puzzleHintTimer / 60);
+        ctx.fillStyle = "#f1c40f";
+        ctx.font = "bold 16px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(`HINT: ${hintSeconds}s`, 200, 150);
+        ctx.textAlign = "left";
+    }
+
+    // Draw gate
+    if (puzzleGate && puzzleGate.active) {
+        const gx = puzzleGate.x - camera.x;
+        const gy = puzzleGate.y - camera.y;
+
+        if (gx + puzzleGate.width >= 0 && gx <= canvas.width && 
+            gy + puzzleGate.height >= 0 && gy <= canvas.height) {
+
+            const time = Date.now() / 200;
+            const pulse = Math.sin(time) * 8;
+
+            ctx.save();
+
+            // Outer glow
+            ctx.shadowColor = "#9b59b6";
+            ctx.shadowBlur = 30;
+            ctx.fillStyle = "#9b59b6";
+            ctx.globalAlpha = 0.6 + Math.sin(time) * 0.4;
+            ctx.fillRect(gx - pulse, gy - pulse, puzzleGate.width + pulse*2, puzzleGate.height + pulse*2);
+
+            // Inner portal
+            ctx.fillStyle = "#fff";
+            ctx.globalAlpha = 0.9;
+            ctx.fillRect(gx + 8, gy + 8, puzzleGate.width - 16, puzzleGate.height - 16);
+
+            // Text
+            ctx.fillStyle = "#f1c40f";
+            ctx.font = "bold 11px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("NEXT", gx + puzzleGate.width/2, gy + puzzleGate.height/2 - 5);
+            ctx.fillText("MAP", gx + puzzleGate.width/2, gy + puzzleGate.height/2 + 10);
+            ctx.textAlign = "left";
+
+            ctx.restore();
+        }
+    }
+}
+
+function resetPuzzle() {
+    puzzleSolved = false;
+    currentPlateIndex = 0;
+    puzzleTimer = 0;
+    puzzleHintTimer = puzzleHintDuration;
+    puzzleAttempts = 0;
+
+    generatePuzzleSequence();
+    shufflePlatePositions();
+
+    if (puzzlePlates) {
+        puzzlePlates.forEach((p, i) => {
+            p.activated = false;
+            p.color = "#7f8c8d";
+            p.wrongFlash = 0;
+            p.x = puzzlePlatePositions[i].x;
+            p.y = puzzlePlatePositions[i].y;
+        });
+    }
+    if (puzzleGate) {
+        puzzleGate.active = false;
+    }
+}
+
 
 
 const assets = {
@@ -467,6 +842,7 @@ let isGameStarted = false;
 let projectiles = [];
 const floatingTexts = [];
 let stageFinished = false;
+      resetPuzzle();
 let pendingAction = null;
 const ENEMY_AGGRO_RANGE = 300;
 const ENEMY_DEAGGRO_RANGE = 500;
@@ -923,6 +1299,7 @@ function stageClear() {
 
 function backToMainMenu() {
   stopBGM();
+  resetPuzzle();
   isGameStarted = false;
   let hud = document.getElementById("hud");
   if (hud) hud.style.display = "none";
@@ -937,6 +1314,7 @@ async function startGame(job) {
       initBGM();
       playBGM();
       initBoss();
+      initPuzzle();
   if (document.getElementById("job-val"))
     document.getElementById("job-val").innerText = job;
   if (document.getElementById("hud"))
@@ -1429,6 +1807,7 @@ function gameLoop() {
     updateProjectiles();
     updateEnemies();
     updateBoss();
+    updatePuzzle();
     updateCamera();
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1437,6 +1816,7 @@ function gameLoop() {
     drawChests();
     drawEnemies();
     drawBoss();
+    drawPuzzle();
 
     // RENDER PELURU/SIHIR
     projectiles.forEach((p) => {
