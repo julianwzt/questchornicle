@@ -712,9 +712,15 @@ const PLAYER_TEXTURES = {
     dirMap: { up: "atas", down: "bawah", left: "kiri", right: "kanan" },
   },
 };
-function getPlayerTextureKey(job, direction, frameNum = 1) {
+function getPlayerTextureKey(job, direction, frameNum = 1, useAttackTexture = false) {
   const config = PLAYER_TEXTURES[job] || PLAYER_TEXTURES.Warrior;
-  return `${config.prefix}_${config.dirMap[direction] || "bawah"}_${frameNum}`;
+  const sprite = `${config.prefix}_${config.dirMap[direction] || "bawah"}_${frameNum}`;
+
+  if (useAttackTexture && config.prefix === "war") {
+    return `${sprite}_nyerang`;
+  }
+
+  return sprite;
 }
 
 loadAsset("tiles", "0", "res/tiles/grass.png");
@@ -732,11 +738,22 @@ Object.values(PLAYER_TEXTURES).forEach(({ prefix }) => {
       `res/player/${prefix}_${sprite}.png`,
     );
   });
+
+  if (prefix === "war") {
+    ["atas_1_nyerang", "bawah_1_nyerang", "kiri_1_nyerang", "kanan_1_nyerang"].forEach((sprite) => {
+      loadAsset(
+        "player",
+        `${prefix}_${sprite}`,
+        `res/player/${prefix}_${sprite}.png`,
+      );
+    });
+  }
 });
 
 loadAsset("objects", "sword", "res/objects/sword_normal.png");
 loadAsset("objects", "potion", "res/objects/potion_red.png");
 loadAsset("objects", "chest", "res/objects/chest.png");
+loadAsset("objects", "chest_opened", "res/objects/chest_opened.png");
 loadAsset("enemy", "slime_1", "res/monster/greenslime_down_1.png");
 loadAsset("enemy", "slime_2", "res/monster/greenslime_down_2.png");
 loadAsset("enemy", "orc_1", "res/monster/orc_down_1.png");
@@ -1232,8 +1249,17 @@ function showScreen(id) {
   document
     .querySelectorAll(".overlay")
     .forEach((el) => el.classList.remove("active"));
+
   const target = document.getElementById(id);
-  if (target) target.classList.add("active");
+  if (target) {
+    target.classList.add("active");
+  }
+
+  if (id === "none") {
+    gameState = "PLAYING";
+    return;
+  }
+
   gameState = id.toUpperCase();
 }
 function openSettings() {
@@ -1251,9 +1277,15 @@ function closeSettings() {
   } else showScreen("main-menu");
 }
 function closeInventory() {
-  showScreen("none");
+  document
+    .querySelectorAll(".overlay")
+    .forEach((el) => el.classList.remove("active"));
+
   gameState = "PLAYING";
-  requestAnimationFrame(gameLoop);
+
+  if (typeof requestAnimationFrame === "function") {
+    requestAnimationFrame(gameLoop);
+  }
 }
 function gameOver() {
   stopBGM();
@@ -1609,12 +1641,23 @@ function drawChests() {
       cy > canvas.height
     )
       return;
-    let img = assets.objects["chest"];
-    if (img && img.complete && !chest.opened) {
-      ctx.drawImage(img, cx, cy, TILE_SIZE, TILE_SIZE);
-    } else if (chest.opened) {
-      ctx.fillStyle = "#7f8c8d";
-      ctx.fillRect(cx + 8, cy + 8, TILE_SIZE - 16, TILE_SIZE - 16);
+    if (chest.opened) {
+      const openedImg = assets.objects["chest_opened"];
+      const hasOpenedTexture = openedImg && (openedImg.complete || openedImg.naturalWidth > 0);
+
+      if (hasOpenedTexture) {
+        ctx.drawImage(openedImg, cx, cy, TILE_SIZE, TILE_SIZE);
+      } else {
+        const closedImg = assets.objects["chest"];
+        if (closedImg && (closedImg.complete || closedImg.naturalWidth > 0)) {
+          ctx.drawImage(closedImg, cx, cy, TILE_SIZE, TILE_SIZE);
+        }
+      }
+    } else {
+      const img = assets.objects["chest"];
+      if (img && (img.complete || img.naturalWidth > 0)) {
+        ctx.drawImage(img, cx, cy, TILE_SIZE, TILE_SIZE);
+      }
     }
   });
 }
@@ -1843,10 +1886,13 @@ function gameLoop() {
     }
 
     // Gambar Karakter Pahlawan
+    const useAttackTexture =
+      (player.job || "Warrior") === "Warrior" && player.isAttacking;
     const textureKey = getPlayerTextureKey(
       player.job || "Warrior",
       player.direction,
       1,
+      useAttackTexture,
     );
     const img = assets.player[textureKey];
     if (img && img.complete && img.naturalWidth > 0) {
