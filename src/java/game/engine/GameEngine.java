@@ -1,5 +1,6 @@
 package game.engine;
 
+import game.model.Boss;
 import game.model.Enemy;
 import game.model.Hero;
 import game.model.Orc;
@@ -35,7 +36,8 @@ public class GameEngine {
         activeEnemies.add(new Orc(1680, 720)); 
         activeEnemies.add(new Enemy("bat", 40, 5, 480, 1440));     
         activeEnemies.add(new Slime(1680, 1920));
-        activeEnemies.add(new Orc(1200, 1920));   
+        activeEnemies.add(new Orc(1200, 1920));
+        activeEnemies.add(new Boss(1800, 1800));
         
         activeChests.add("{\"x\": 384, \"y\": 960, \"item\": \"potion\", \"opened\": false}");
         activeChests.add("{\"x\": 1920, \"y\": 480, \"item\": \"sword\", \"opened\": false}");

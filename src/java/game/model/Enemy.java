@@ -17,6 +17,10 @@ public class Enemy extends Character {
         this.y = y;
         this.dropExp = 50;     
     }
+    
+    public boolean isBoss() {
+        return false; 
+    }
 
     // --- GETTER & SETTER KHUSUS ENEMY ---
     public int getX() {
@@ -46,6 +50,10 @@ public class Enemy extends Character {
 
     public int getDropExp() {
         return dropExp; 
+    }
+    
+    public void setDropExp(int dropExp) {
+        this.dropExp = dropExp; 
     }
 
     // --- LOGIKA AI & RPG ---
