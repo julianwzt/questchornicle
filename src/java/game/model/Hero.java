@@ -11,12 +11,12 @@ public class Hero extends Character {
     private int maxMp;
     private int maxExp;
 
-    // --- SERVER AUTHORITY: Variabel Stats & Inventory ---
     private int def;
     private int potionCount = 0;
     private int keyCount = 0;
     private boolean hasSword = false;
     private boolean hasShield = false;
+    private boolean hasClue = false; // VARIABEL BARU UNTUK PETUNJUK
 
     public Hero(String nama) {
         this.nama = nama;
@@ -32,13 +32,12 @@ public class Hero extends Character {
         this.mp = 100;
         this.maxMp = 100;
 
-        // Reset Inventory
         this.potionCount = 0;
         this.keyCount = 0;
         this.hasSword = false;
         this.hasShield = false;
+        this.hasClue = false; // RESET PETUNJUK SAAT NEW GAME
 
-        // Base Stats
         if ("Warrior".equals(jobName)) {
             this.maxHp = 150;
             this.atk = 20;
@@ -101,7 +100,6 @@ public class Hero extends Character {
         return "failed";
     }
 
-    // --- GETTER SETTER STATS ---
     public int getHp() {
         return this.hp;
     }
@@ -146,7 +144,14 @@ public class Hero extends Character {
         return this.def;
     }
 
-    // --- GETTER SETTER INVENTORY ---
+    public String getNama() {
+        return this.nama;
+    }
+
+    public void setNama(String nama) {
+        this.nama = nama;
+    }
+
     public int getPotionCount() {
         return potionCount;
     }
@@ -177,6 +182,14 @@ public class Hero extends Character {
 
     public void setHasShield(boolean hasShield) {
         this.hasShield = hasShield;
+    }
+
+    public boolean isHasClue() {
+        return hasClue;
+    }
+
+    public void setHasClue(boolean hasClue) {
+        this.hasClue = hasClue;
     }
 
     @Override

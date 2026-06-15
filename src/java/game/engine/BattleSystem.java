@@ -18,7 +18,6 @@ public class BattleSystem {
     public void processBattle(String action) { 
         if(action.equals("attack") && hero.isAlive() && enemy.isAlive()) {
             hero.attack(enemy);
-            // AI Musuh merespons langsung
             if(enemy.isAlive()) {
                 enemy.attack(hero);
             }

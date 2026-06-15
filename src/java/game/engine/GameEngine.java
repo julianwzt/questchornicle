@@ -35,8 +35,8 @@ public class GameEngine {
         activeEnemies.add(new Orc(1680, 720));
         activeEnemies.add(new Enemy("bat", 40, 5, 480, 1440));
         activeEnemies.add(new Slime(1680, 1920));
-        activeEnemies.add(new Orc(1200, 1920));
-        activeEnemies.add(new Orc(500, 500));
+        activeEnemies.add(new Orc(1300, 1920));
+        activeEnemies.add(new Orc(500, 1500));
         activeEnemies.add(new Enemy("bat", 60, 15, 800, 300));
         activeChests.add("{\"x\": 336, \"y\": 192, \"item\": \"sword\", \"opened\": false}");
         activeChests.add("{\"x\": 432, \"y\": 192, \"item\": \"shield\", \"opened\": false}");
@@ -59,19 +59,18 @@ public class GameEngine {
             if (!chestData.contains("\"opened\": true")) {
                 activeChests.set(chestIndex, chestData.replace("\"opened\": false", "\"opened\": true"));
 
-                // --- SERVER AUTHORITY: Menambah Loot ---
                 if (chestData.contains("\"item\": \"potion\"")) {
                     hero.setPotionCount(hero.getPotionCount() + 1);
                 } else if (chestData.contains("\"item\": \"sword\"") && !hero.isHasSword()) {
                     hero.setHasSword(true);
-                    hero.setAtk(hero.getAtk() + 15); // Tambah ATK
+                    hero.setAtk(hero.getAtk() + 15);
                 } else if (chestData.contains("\"item\": \"shield\"") && !hero.isHasShield()) {
                     hero.setHasShield(true);
-                    hero.setDef(hero.getDef() + 10); // Tambah DEF
+                    hero.setDef(hero.getDef() + 10);
                 } else if (chestData.contains("\"item\": \"key\"")) {
-                    hero.setKeyCount(hero.getKeyCount() + 1); // Dapat Kunci
-                } else if (chestData.contains("\"item\": \"clue\"")) {
-                    // Petunjuk puzzle, tidak mengubah stat backend
+                    hero.setKeyCount(hero.getKeyCount() + 1);
+                } else if (chestData.contains("\"item\": \"clue\"") && !hero.isHasClue()) {
+                    hero.setHasClue(true); // SET BAHWA HERO PUNYA PETUNJUK
                 }
 
                 return true;
@@ -120,8 +119,8 @@ public class GameEngine {
         json.append("{");
 
         json.append(String.format(
-                "\"player\": {\"hp\": %d, \"maxHp\": %d, \"mp\": %d, \"maxMp\": %d, \"level\": %d, \"exp\": %d, \"maxExp\": %d, \"x\": %d, \"y\": %d, \"job\": \"%s\", \"atk\": %d, \"def\": %d, \"keys\": %d},",
-                this.hero.getHp(), this.hero.getMaxHp(), this.hero.getMp(), this.hero.getMaxMp(),
+                "\"player\": {\"name\": \"%s\", \"hp\": %d, \"maxHp\": %d, \"mp\": %d, \"maxMp\": %d, \"level\": %d, \"exp\": %d, \"maxExp\": %d, \"x\": %d, \"y\": %d, \"job\": \"%s\", \"atk\": %d, \"def\": %d, \"keys\": %d},",
+                this.hero.getNama(), this.hero.getHp(), this.hero.getMaxHp(), this.hero.getMp(), this.hero.getMaxMp(),
                 this.hero.getLevel(), this.hero.getExp(), this.hero.getMaxExp(),
                 this.hero.getX(), this.hero.getY(),
                 (this.hero.job != null ? this.hero.job : "Warrior"),
@@ -147,7 +146,7 @@ public class GameEngine {
         }
         json.append("],");
 
-        // --- Menyusun Inventory ---
+        // --- MENYUSUN ITEM INVENTORY ---
         List<String> invItems = new ArrayList<>();
         if (hero.getPotionCount() > 0) {
             invItems.add("{\"name\": \"Red Potion\", \"type\": \"potion\", \"count\": " + hero.getPotionCount() + "}");
@@ -160,6 +159,10 @@ public class GameEngine {
         }
         if (hero.isHasShield()) {
             invItems.add("{\"name\": \"Wooden Shield\", \"type\": \"shield\", \"count\": 1, \"equipped\": true}");
+        }
+        // MENAMBAHKAN KERTAS PETUNJUK KE INVENTORY JSON
+        if (hero.isHasClue()) {
+            invItems.add("{\"name\": \"Kertas Petunjuk\", \"type\": \"clue\", \"count\": 1, \"equipped\": false}");
         }
 
         json.append("\"inventory\": [");

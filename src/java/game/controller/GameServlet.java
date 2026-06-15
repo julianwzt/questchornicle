@@ -34,8 +34,14 @@ public class GameServlet extends HttpServlet {
 
             if ("new_game".equals(action)) {
                 String job = request.getParameter("job");
+                String username = request.getParameter("username");
+
                 if (job == null)
                     job = "Warrior";
+                if (username == null || username.trim().isEmpty())
+                    username = "Player";
+
+                engine.getHero().setNama(username);
                 engine.getHero().resetForNewGame(job);
                 engine.spawnEntities();
                 out.print(engine.getGameStateAsJson());

@@ -20,16 +20,26 @@ pageEncoding="UTF-8"%>
         <div class="menu-btn" onclick="openSettings()">SETTINGS</div>
       </div>
 
-      <div id="job-menu" class="overlay" data-type="menu">
-        <h2 style="margin-bottom: 20px">SELECT YOUR JOB</h2>
-        <div style="display: flex; gap: 15px; justify-content: center">
-          <div class="job-card selected" onclick="startGame('Warrior')">
-            Warrior
-          </div>
-          <div class="job-card" onclick="startGame('Mage')">Mage</div>
-          <div class="job-card" onclick="startGame('Archer')">Archer</div>
+      <div id="job-menu" class="overlay">
+            <h1 class="game-title">SELECT YOUR JOB</h1>
+            <input type="text" id="username-input" placeholder="Masukkan Username..." autocomplete="off">
+            
+            <div style="display: flex;">
+                <div class="job-card" onclick="startGame('Warrior')">
+                    <h2>Warrior</h2>
+                    <p>HP: 150 | ATK: 20 | DEF: 5</p>
+                </div>
+                <div class="job-card" onclick="startGame('Mage')">
+                    <h2>Mage</h2>
+                    <p>HP: 80 | ATK: 5 | DEF: 2</p>
+                </div>
+                <div class="job-card" onclick="startGame('Archer')">
+                    <h2>Archer</h2>
+                    <p>HP: 100 | ATK: 10 | DEF: 3</p>
+                </div>
+            </div>
+            <button class="menu-btn" onclick="showScreen('main-menu')" style="margin-top: 20px;">KEMBALI</button>
         </div>
-      </div>
 
       <div id="slot-menu" class="overlay" data-type="menu">
         <h2 style="margin-bottom: 20px">PILIH SLOT</h2>
@@ -109,25 +119,26 @@ pageEncoding="UTF-8"%>
       <div id="inventory-menu" class="overlay">
         <div class="inventory-container">
           <div class="stats-panel">
-            <h2>Character Status</h2>
-            <div class="char-info">
-              <img
-                id="inv-char-img"
-                src="res/player/war_bawah_1.png"
-                alt="Player"
-              />
-              <div>
-                <h3 id="inv-job">Warrior</h3>
-                <p id="inv-level">Lv. 1</p>
-              </div>
-            </div>
-            <div class="stats-list">
-              <p><span>HP:</span> <span id="inv-hp">100 / 100</span></p>
-              <p><span>MP:</span> <span id="inv-mp">50 / 50</span></p>
-              <p><span>EXP:</span> <span id="inv-exp">0 / 100</span></p>
-              <p><span>ATK:</span> <span id="inv-atk">20</span></p>
-            </div>
-          </div>
+                    <h2>Character Status</h2>
+                    <div class="char-info">
+                        <img id="inv-char-img" src="" alt="avatar">
+                        <div>
+                            <h3 id="inv-name" style="color: #f1c40f; margin-bottom: 5px;">Player</h3>
+                            <h4 id="inv-job" style="margin: 0; color: #3498db; font-size: 16px;">Warrior</h4>
+                            <p id="inv-level">Lv. 1</p>
+                        </div>
+                    </div>
+
+                    <div class="stats-list">
+                        <p><span>JOB</span> <span id="inv-job-list">Warrior</span></p>
+                        <p><span>LEVEL</span> <span id="inv-level-list">1</span></p>
+                        <p><span>HP</span> <span id="inv-hp">100 / 100</span></p>
+                        <p><span>MP</span> <span id="inv-mp">100 / 100</span></p>
+                        <p><span>EXP</span> <span id="inv-exp">0 / 100</span></p>
+                        <p><span>ATTACK</span> <span id="inv-atk">0</span></p>
+                        <p><span>DEFENSE</span> <span id="inv-def">0</span></p>
+                    </div>
+                </div>
 
           <div class="items-panel">
             <h2>Inventory</h2>
