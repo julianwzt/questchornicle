@@ -1,8 +1,8 @@
 package game.model;
 
-public class Dragon extends Enemy {
+public class Boss extends Enemy {
 
-    public Dragon(int x, int y) {
+    public Boss(int x, int y) {
         super("Dragon", 400, 40, x, y);
         setDropItem(new Potion(100));
     }
