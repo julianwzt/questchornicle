@@ -124,7 +124,6 @@ pageEncoding="UTF-8"%>
                         <img id="inv-char-img" src="" alt="avatar">
                         <div>
                             <h3 id="inv-name" style="color: #f1c40f; margin-bottom: 5px;">Player</h3>
-                            <h4 id="inv-job" style="margin: 0; color: #3498db; font-size: 16px;">Warrior</h4>
                             <p id="inv-level">Lv. 1</p>
                         </div>
                     </div>
@@ -171,7 +170,7 @@ pageEncoding="UTF-8"%>
       </div>
 
       <div id="hud">
-        <b>[ <span id="job-val">-</span> ]</b>
+        <b><span id="inv-name"></span></b>
         <div style="font-size: 13px; margin-top: 5px">
           HP: <span id="hp-val">100</span> / <span id="max-hp-val">100</span>
         </div>
