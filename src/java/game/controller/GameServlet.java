@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet(name = "GameServlet", urlPatterns = {"/GameServlet"})
+@WebServlet(name = "GameServlet", urlPatterns = { "/GameServlet" })
 public class GameServlet extends HttpServlet {
 
     private GameEngine engine;
@@ -23,30 +23,29 @@ public class GameServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("application/json;charset=UTF-8");
-        
+
         try (PrintWriter out = response.getWriter()) {
             String action = request.getParameter("action");
-            
+
             if (action == null) {
                 out.print(engine.getGameStateAsJson());
                 return;
             }
-            
+
             if ("new_game".equals(action)) {
                 String job = request.getParameter("job");
-                if (job == null) job = "Warrior";
+                if (job == null)
+                    job = "Warrior";
                 engine.getHero().resetForNewGame(job);
                 engine.spawnEntities();
                 out.print(engine.getGameStateAsJson());
-            } 
-            else if ("move".equals(action)) {
+            } else if ("move".equals(action)) {
                 int x = Integer.parseInt(request.getParameter("x"));
                 int y = Integer.parseInt(request.getParameter("y"));
                 engine.getHero().setX(x);
                 engine.getHero().setY(y);
                 out.print("{\"status\":\"moved\"}");
-            } 
-            else if ("attack_enemy".equals(action)) {
+            } else if ("attack_enemy".equals(action)) {
                 int enemyId = Integer.parseInt(request.getParameter("enemy_id"));
                 if (enemyId >= 0 && enemyId < engine.getActiveEnemies().size()) {
                     game.model.Enemy target = engine.getActiveEnemies().get(enemyId);
@@ -58,22 +57,19 @@ public class GameServlet extends HttpServlet {
                     }
                 }
                 out.print(engine.getGameStateAsJson());
-            } 
-            else if ("take_damage".equals(action)) {
+            } else if ("take_damage".equals(action)) {
                 int dmg = Integer.parseInt(request.getParameter("damage"));
                 engine.getHero().takeDamage(dmg);
                 out.print(engine.getGameStateAsJson());
-            } 
-            else if ("open_chest".equals(action)) {
+            } else if ("open_chest".equals(action)) {
                 int chestId = Integer.parseInt(request.getParameter("chest_id"));
                 engine.openChest(chestId);
                 out.print(engine.getGameStateAsJson());
-            } 
-            else if ("use_potion".equals(action)) {
-                if (engine.getHero() != null) engine.getHero().usePotion();
+            } else if ("use_potion".equals(action)) {
+                if (engine.getHero() != null)
+                    engine.getHero().usePotion();
                 out.print(engine.getGameStateAsJson());
-            }
-            else if ("use_key".equals(action)) {
+            } else if ("use_key".equals(action)) {
                 if (engine.getHero() != null && engine.getHero().getKeyCount() > 0) {
                     engine.getHero().setKeyCount(engine.getHero().getKeyCount() - 1);
                 }
@@ -86,25 +82,43 @@ public class GameServlet extends HttpServlet {
                     int spawnX = 240; // Fallback X
                     int spawnY = 240; // Fallback Y
                     try {
-                        if (request.getParameter("spawnX") != null) spawnX = Integer.parseInt(request.getParameter("spawnX"));
-                        if (request.getParameter("spawnY") != null) spawnY = Integer.parseInt(request.getParameter("spawnY"));
-                    } catch (Exception e) {}
-                    
+                        if (request.getParameter("spawnX") != null)
+                            spawnX = Integer.parseInt(request.getParameter("spawnX"));
+                        if (request.getParameter("spawnY") != null)
+                            spawnY = Integer.parseInt(request.getParameter("spawnY"));
+                    } catch (Exception e) {
+                    }
+
                     engine.getHero().setX(spawnX);
                     engine.getHero().setY(spawnY);
                 }
                 out.print(engine.getGameStateAsJson());
-            }
-            else if ("use_skill".equals(action)) {
+            } else if ("exit_dungeon".equals(action)) {
+                engine.spawnEntities(); // Load ulang musuh dan peti di World01
+                if (engine.getHero() != null) {
+                    int spawnX = 240;
+                    int spawnY = 240;
+                    try {
+                        if (request.getParameter("spawnX") != null)
+                            spawnX = Integer.parseInt(request.getParameter("spawnX"));
+                        if (request.getParameter("spawnY") != null)
+                            spawnY = Integer.parseInt(request.getParameter("spawnY"));
+                    } catch (Exception e) {
+                    }
+
+                    engine.getHero().setX(spawnX);
+                    engine.getHero().setY(spawnY);
+                }
+                out.print(engine.getGameStateAsJson());
+            } else if ("use_skill".equals(action)) {
                 int skillNum = Integer.parseInt(request.getParameter("skill_num"));
                 String effect = engine.getHero().useSkill(skillNum);
-                
+
                 String jsonState = engine.getGameStateAsJson();
-                String responseJson = jsonState.substring(0, jsonState.length() - 1) + 
-                                      ", \"skill_effect\": \"" + effect + "\"}";
+                String responseJson = jsonState.substring(0, jsonState.length() - 1) +
+                        ", \"skill_effect\": \"" + effect + "\"}";
                 out.print(responseJson);
-            } 
-            else if ("save".equals(action)) {
+            } else if ("save".equals(action)) {
                 int slot = Integer.parseInt(request.getParameter("slot_id"));
                 engine.getHero().setX(Integer.parseInt(request.getParameter("x")));
                 engine.getHero().setY(Integer.parseInt(request.getParameter("y")));
@@ -112,8 +126,7 @@ public class GameServlet extends HttpServlet {
                 engine.getHero().job = request.getParameter("job");
                 engine.saveGame(slot);
                 out.print("{\"status\":\"saved\"}");
-            } 
-            else if ("load".equals(action)) {
+            } else if ("load".equals(action)) {
                 int slot = Integer.parseInt(request.getParameter("slot_id"));
                 boolean success = engine.loadGame(slot);
                 if (success) {
@@ -122,8 +135,7 @@ public class GameServlet extends HttpServlet {
                 } else {
                     out.print("{\"status\":\"empty\"}");
                 }
-            } 
-            else {
+            } else {
                 out.print(engine.getGameStateAsJson());
             }
         }

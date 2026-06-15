@@ -36,8 +36,8 @@ public class GameEngine {
         activeEnemies.add(new Enemy("bat", 40, 5, 480, 1440));
         activeEnemies.add(new Slime(1680, 1920));
         activeEnemies.add(new Orc(1200, 1920));
-
-        // Spawn Peti (Pedang & Perisai di Area Screenshot 1, Kunci di Screenshot 2)
+        activeEnemies.add(new Orc(500, 500));
+        activeEnemies.add(new Enemy("bat", 60, 15, 800, 300));
         activeChests.add("{\"x\": 336, \"y\": 192, \"item\": \"sword\", \"opened\": false}");
         activeChests.add("{\"x\": 432, \"y\": 192, \"item\": \"shield\", \"opened\": false}");
         activeChests.add("{\"x\": 2000, \"y\": 630, \"item\": \"key\", \"opened\": false}");
@@ -48,12 +48,9 @@ public class GameEngine {
         activeEnemies.clear();
         activeChests.clear();
 
-        // Dungeon Spawn
-        activeEnemies.add(new Orc(500, 500));
-        activeEnemies.add(new Enemy("bat", 60, 15, 800, 300));
-        activeEnemies.add(new Boss(1800, 1800)); // Boss muncul di Dungeon
-
+        activeEnemies.add(new Boss(800, 500)); // Boss muncul di Dungeon
         activeChests.add("{\"x\": 960, \"y\": 960, \"item\": \"potion\", \"opened\": false}");
+        activeChests.add("{\"x\": 870, \"y\": 114, \"item\": \"clue\", \"opened\": false}");
     }
 
     public boolean openChest(int chestIndex) {
@@ -73,6 +70,8 @@ public class GameEngine {
                     hero.setDef(hero.getDef() + 10); // Tambah DEF
                 } else if (chestData.contains("\"item\": \"key\"")) {
                     hero.setKeyCount(hero.getKeyCount() + 1); // Dapat Kunci
+                } else if (chestData.contains("\"item\": \"clue\"")) {
+                    // Petunjuk puzzle, tidak mengubah stat backend
                 }
 
                 return true;
