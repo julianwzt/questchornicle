@@ -11,7 +11,8 @@ public abstract class Character implements Attackable, Levelable, java.io.Serial
 
     public void takeDamage(int dmg) {
         this.hp -= dmg;
-        if (this.hp < 0) this.hp = 0;
+        if (this.hp < 0)
+            this.hp = 0;
     }
 
     public boolean isAlive() {
@@ -21,7 +22,7 @@ public abstract class Character implements Attackable, Levelable, java.io.Serial
     public abstract String getDescription();
 
     public String getNama() {
-        return nama; 
+        return nama;
     }
 
     public int getAtk() {
@@ -47,20 +48,20 @@ public abstract class Character implements Attackable, Levelable, java.io.Serial
     public void setExp(int exp) {
         this.exp = exp;
     }
-    
+
     public int getHp() {
-        return hp; 
+        return hp;
     }
-    
+
     public int getMaxHp() {
-        return maxHp; 
+        return maxHp;
     }
-    
+
     public int getLevel() {
-        return level; 
+        return level;
     }
-    
+
     public void setHp(int hp) {
-        this.hp = hp; 
+        this.hp = hp;
     }
 }
