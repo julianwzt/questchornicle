@@ -380,7 +380,7 @@ let player = {
   name: "Player",
   x: 240,
   y: 240,
-  speed: 3.0,
+  speed: 4.0,
   width: TILE_SIZE,
   height: TILE_SIZE,
   job: "",
