@@ -39,16 +39,12 @@ function stopBGM() {
 function switchBGM(mapName) {
   let wasPlaying = isBgmPlaying;
   pauseBGM();
-
   if (mapName === "dungeon02") {
     currentBgm = bgmDungeon;
   } else {
     currentBgm = bgmWorld;
   }
-
-  if (wasPlaying && !isBgmMuted) {
-    playBGM();
-  }
+  if (wasPlaying && !isBgmMuted) playBGM();
 }
 
 function toggleBGMMute() {
@@ -98,7 +94,7 @@ const sfx = {
   unlock: new Audio("res/sound/unlock.wav"),
   levelup: new Audio("res/sound/levelup.wav"),
   fanfare: new Audio("res/sound/fanfare.wav"),
-  powerup: new Audio("res/sound/powerup.wav"),
+  powerup: new Audio("res/sound/powerup.wav")
 };
 Object.values(sfx).forEach((a) => {
   a.volume = SFX_VOLUME;
@@ -115,7 +111,7 @@ function playSfx(name) {
   } catch (e) {}
 }
 
-//puzzle
+//puzzlekotak4
 let puzzlePlates = [];
 let puzzleSolved = false;
 let currentPuzzleIndex = 0;
@@ -127,42 +123,10 @@ function initPuzzle() {
   currentPuzzleIndex = 0;
   isPlayerOnPlate = false;
   puzzlePlates = [
-    {
-      id: "MERAH",
-      x: 720,
-      y: 144,
-      width: 48,
-      height: 48,
-      color: "#e74c3c",
-      isPressed: false,
-    },
-    {
-      id: "HIJAU",
-      x: 2000,
-      y: 144,
-      width: 48,
-      height: 48,
-      color: "#2ecc71",
-      isPressed: false,
-    },
-    {
-      id: "BIRU",
-      x: 144,
-      y: 2000,
-      width: 48,
-      height: 48,
-      color: "#3498db",
-      isPressed: false,
-    },
-    {
-      id: "KUNING",
-      x: 2000,
-      y: 2000,
-      width: 48,
-      height: 48,
-      color: "#f1c40f",
-      isPressed: false,
-    },
+    { id: "MERAH", x: 720, y: 144, width: 48, height: 48, color: "#e74c3c", isPressed: false },
+    { id: "HIJAU", x: 2000, y: 144, width: 48, height: 48, color: "#2ecc71", isPressed: false },
+    { id: "BIRU", x: 144, y: 2000, width: 48, height: 48, color: "#3498db", isPressed: false },
+    { id: "KUNING", x: 2000, y: 2000, width: 48, height: 48, color: "#f1c40f", isPressed: false }
   ];
 }
 
@@ -173,20 +137,12 @@ function updatePuzzle() {
     x: player.x + 10,
     y: player.y + 10,
     width: player.width - 20,
-    height: player.height - 20,
+    height: player.height - 20
   };
   let currentlyOnPlate = false;
 
   puzzlePlates.forEach((plate) => {
-    if (
-      checkCollision(
-        playerHitbox.x,
-        playerHitbox.y,
-        playerHitbox.width,
-        playerHitbox.height,
-        plate,
-      )
-    ) {
+    if (checkCollision(playerHitbox.x, playerHitbox.y, playerHitbox.width, playerHitbox.height, plate)) {
       currentlyOnPlate = true;
       if (!isPlayerOnPlate && !plate.isPressed) {
         if (plate.id === PUZZLE_SECRET_SEQUENCE[currentPuzzleIndex]) {
@@ -194,16 +150,10 @@ function updatePuzzle() {
           currentPuzzleIndex++;
           playSfx("powerup");
           showFloatingDamage(plate.x, plate.y - 20, "BENAR!", plate.color);
-
           if (currentPuzzleIndex >= PUZZLE_SECRET_SEQUENCE.length) {
             puzzleSolved = true;
             playSfx("fanfare");
-            showFloatingDamage(
-              player.x,
-              player.y - 50,
-              "GERBANG TERBUKA!",
-              "#9b59b6",
-            );
+            showFloatingDamage(player.x, player.y - 50, "GERBANG TERBUKA!", "#9b59b6");
             setTimeout(stageClear, 2000);
           }
         } else {
@@ -222,13 +172,7 @@ function drawPuzzle() {
   puzzlePlates.forEach((plate) => {
     const px = plate.x - camera.x;
     const py = plate.y - camera.y;
-    if (
-      px + plate.width < 0 ||
-      px > canvas.width ||
-      py + plate.height < 0 ||
-      py > canvas.height
-    )
-      return;
+    if (px + plate.width < 0 || px > canvas.width || py + plate.height < 0 || py > canvas.height) return;
     ctx.fillStyle = plate.isPressed ? plate.color : "#7f8c8d";
     ctx.fillRect(px, py, plate.width, plate.height);
     ctx.strokeStyle = plate.color;
@@ -237,14 +181,15 @@ function drawPuzzle() {
   });
 }
 
-//ASSETS
+
 const assets = {
   tiles: {},
   player: {},
   objects: {},
   projectile: {},
-  enemy: {},
+  enemy: {}
 };
+
 function loadAsset(category, name, src) {
   const img = new Image();
   img.src = src;
@@ -254,32 +199,25 @@ function loadAsset(category, name, src) {
 const PLAYER_TEXTURES = {
   Warrior: {
     prefix: "war",
-    dirMap: { up: "atas", down: "bawah", left: "kiri", right: "kanan" },
+    dirMap: { up: "atas", down: "bawah", left: "kiri", right: "kanan" }
   },
   Archer: {
     prefix: "arc",
-    dirMap: { up: "atas", down: "bawah", left: "kiri", right: "kanan" },
+    dirMap: { up: "atas", down: "bawah", left: "kiri", right: "kanan" }
   },
   Mage: {
     prefix: "mage",
-    dirMap: { up: "atas", down: "bawah", left: "kiri", right: "kanan" },
-  },
+    dirMap: { up: "atas", down: "bawah", left: "kiri", right: "kanan" }
+  }
 };
 
-function getPlayerTextureKey(
-  job,
-  direction,
-  frameNum = 1,
-  useAttackTexture = false,
-) {
+function getPlayerTextureKey(job, direction, frameNum = 1, useAttackTexture = false) {
   const config = PLAYER_TEXTURES[job] || PLAYER_TEXTURES.Warrior;
   const sprite = `${config.prefix}_${config.dirMap[direction] || "bawah"}_${frameNum}`;
-  return useAttackTexture && config.prefix === "war"
-    ? `${sprite}_nyerang`
-    : sprite;
+  return useAttackTexture && config.prefix === "war" ? `${sprite}_nyerang` : sprite;
 }
 
-//TILES
+///TILES
 loadAsset("tiles", "0", "res/tiles/002.png");
 loadAsset("tiles", "8", "res/tiles/000.png");
 loadAsset("tiles", "2", "res/tiles/019.png");
@@ -305,32 +243,20 @@ loadAsset("tiles", "32", "res/tiles/032.png");
 loadAsset("tiles", "34", "res/tiles/034.png");
 loadAsset("tiles", "37", "res/tiles/037.png");
 
-//PLAYER
+
+// PLAYER
 Object.values(PLAYER_TEXTURES).forEach(({ prefix }) => {
   ["atas_1", "bawah_1", "kiri_1", "kanan_1"].forEach((sprite) => {
-    loadAsset(
-      "player",
-      `${prefix}_${sprite}`,
-      `res/player/${prefix}_${sprite}.png`,
-    );
+    loadAsset("player", `${prefix}_${sprite}`, `res/player/${prefix}_${sprite}.png`);
   });
   if (prefix === "war") {
-    [
-      "atas_1_nyerang",
-      "bawah_1_nyerang",
-      "kiri_1_nyerang",
-      "kanan_1_nyerang"
-    ].forEach((sprite) => {
-      loadAsset(
-        "player",
-        `${prefix}_${sprite}`,
-        `res/player/${prefix}_${sprite}.png`,
-      );
+    ["atas_1_nyerang", "bawah_1_nyerang", "kiri_1_nyerang", "kanan_1_nyerang"].forEach((sprite) => {
+      loadAsset("player", `${prefix}_${sprite}`, `res/player/${prefix}_${sprite}.png`);
     });
   }
 });
 
-//ITEMS
+// OBJECTS
 loadAsset("objects", "sword", "res/objects/sword_normal.png");
 loadAsset("objects", "shield", "res/objects/shield_wood.png");
 loadAsset("objects", "key", "res/objects/key.png");
@@ -340,71 +266,28 @@ loadAsset("objects", "chest_opened", "res/objects/chest_opened.png");
 loadAsset("objects", "clue_icon", "res/objects/clue_icon.png");
 loadAsset("objects", "clue_hint", "res/objects/clue_hint.png");
 
-//PROJECTILES
-const projectileDirMap = {
-  up: "atas",
-  down: "bawah",
-  left: "kiri",
-  right: "kanan"
-};
+// PROJECTILES
+const projectileDirMap = { up: "atas", down: "bawah", left: "kiri", right: "kanan" };
 ["up", "down", "left", "right"].forEach((dir) => {
   let indoDir = projectileDirMap[dir];
-  loadAsset(
-    "projectile",
-    `arrow_${indoDir}`,
-    `res/projectile/arrow_${indoDir}.png`,
-  );
-  loadAsset(
-    "projectile",
-    `petir_${indoDir}_1`,
-    `res/projectile/petir_${indoDir}_1.png`,
-  );
-  loadAsset(
-    "projectile",
-    `fireball_${dir}_1`,
-    `res/projectile/fireball_${dir}_1.png`,
-  );
+  loadAsset("projectile", `arrow_${indoDir}`, `res/projectile/arrow_${indoDir}.png`);
+  loadAsset("projectile", `petir_${indoDir}_1`, `res/projectile/petir_${indoDir}_1.png`);
+  loadAsset("projectile", `fireball_${dir}_1`, `res/projectile/fireball_${dir}_1.png`);
 });
 loadAsset("projectile", `rock_down_1`, `res/projectile/rock_down_1.png`);
 
-//musuh
+// ENEMIES
 const dirs = ["up", "down", "left", "right"];
 dirs.forEach((dir) => {
   loadAsset("enemy", `orc_${dir}_1`, `res/monster/orc_${dir}_1.png`);
   loadAsset("enemy", `orc_${dir}_2`, `res/monster/orc_${dir}_2.png`);
-  loadAsset(
-    "enemy",
-    `orc_attack_${dir}_1`,
-    `res/monster/orc_attack_${dir}_1.png`,
-  );
-  loadAsset(
-    "enemy",
-    `orc_attack_${dir}_2`,
-    `res/monster/orc_attack_${dir}_2.png`,
-  );
-
-  loadAsset(
-    "enemy",
-    `skeletonlord_${dir}_1`,
-    `res/monster/skeletonlord_${dir}_1.png`,
-  );
-  loadAsset(
-    "enemy",
-    `skeletonlord_${dir}_2`,
-    `res/monster/skeletonlord_${dir}_2.png`,
-  );
-  loadAsset(
-    "enemy",
-    `skeletonlord_attack_${dir}_1`,
-    `res/monster/skeletonlord_attack_${dir}_1.png`,
-  );
-  loadAsset(
-    "enemy",
-    `skeletonlord_attack_${dir}_2`,
-    `res/monster/skeletonlord_attack_${dir}_2.png`,
-  );
+  loadAsset("enemy", `orc_attack_${dir}_1`, `res/monster/orc_attack_${dir}_1.png`);
+  loadAsset("enemy", `orc_attack_${dir}_2`, `res/monster/orc_attack_${dir}_2.png`);
+  loadAsset("enemy", `skeletonlord_${dir}_1`, `res/monster/skeletonlord_${dir}_1.png`);
+  loadAsset("enemy", `skeletonlord_${dir}_2`, `res/monster/skeletonlord_${dir}_2.png`);
+  loadAsset("enemy", `skeletonlord_attack_${dir}_1`, `res/monster/skeletonlord_attack_${dir}_1.png`);
+  loadAsset("enemy", `skeletonlord_attack_${dir}_2`, `res/monster/skeletonlord_attack_${dir}_2.png`);
 });
-
 loadAsset("enemy", "slime_down_1", "res/monster/greenslime_down_1.png");
 loadAsset("enemy", "slime_down_2", "res/monster/greenslime_down_2.png");
 loadAsset("enemy", "bat_down_1", "res/monster/bat_down_1.png");
@@ -427,7 +310,6 @@ async function fetchMapFromServer(mapId) {
   try {
     currentMapName = mapId;
     switchBGM(mapId);
-
     const response = await fetch(`res/maps/${mapId}.txt`);
     const text = await response.text();
     activeMap = text
@@ -448,8 +330,7 @@ function updateCamera() {
   if (camera.x < 0) camera.x = 0;
   if (camera.y < 0) camera.y = 0;
   if (camera.x + canvas.width > MAP_WIDTH) camera.x = MAP_WIDTH - canvas.width;
-  if (camera.y + canvas.height > MAP_HEIGHT)
-    camera.y = MAP_HEIGHT - canvas.height;
+  if (camera.y + canvas.height > MAP_HEIGHT) camera.y = MAP_HEIGHT - canvas.height;
 }
 
 let gameState = "MAIN-MENU";
@@ -459,9 +340,7 @@ const floatingTexts = [];
 let stageFinished = false;
 let pendingAction = null;
 let isTransitioning = false;
-const ENEMY_AGGRO_RANGE = 300,
-  ENEMY_DEAGGRO_RANGE = 500,
-  ENEMY_ATTACK_RANGE = 60;
+const ENEMY_AGGRO_RANGE = 300, ENEMY_DEAGGRO_RANGE = 500, ENEMY_ATTACK_RANGE = 60;
 let playerHitFlash = 0;
 
 function parseServerEnemies(serverEnemies) {
@@ -498,6 +377,7 @@ function parseServerEnemies(serverEnemies) {
 }
 
 let player = {
+  name: "Player",
   x: 240,
   y: 240,
   speed: 1.5,
@@ -562,7 +442,6 @@ let player = {
       return;
     }
     syncPlayerStatsAndEnemies(data);
-
     let effect = data.skill_effect;
     if (effect === "mage_basic")
       spawnProjectile(this.x, this.y, this.direction, this.baseAtk, "fireball");
@@ -607,7 +486,6 @@ let player = {
           enemy.x = kbX;
           enemy.y = kbY;
         }
-
         fetch("GameServlet", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -625,23 +503,20 @@ let player = {
 
 function syncPlayerStatsAndEnemies(data) {
   if (data.error) return;
-
   data.enemies.forEach((serverData, i) => {
     if (enemies[i]) {
       enemies[i].hp = serverData.hp;
       enemies[i].alive = serverData.alive;
     }
   });
-
   if (data.player.level > serverLevel) {
     showFloatingDamage(player.x, player.y - 20, "LEVEL UP!", "#f1c40f");
     let atkDiff = data.player.atk - player.baseAtk;
-    if (atkDiff > 0)
-      showFloatingDamage(player.x, player.y - 45, `ATK +${atkDiff}`, "#e74c3c");
+    if (atkDiff > 0) showFloatingDamage(player.x, player.y - 45, `ATK +${atkDiff}`, "#e74c3c");
     playSfx("levelup");
   }
 
-  player.name = data.player.name;
+  player.name = data.player.name || "Player";
   player.hp = data.player.hp;
   player.maxHp = data.player.maxHp;
   player.mp = data.player.mp;
@@ -649,12 +524,11 @@ function syncPlayerStatsAndEnemies(data) {
   player.baseAtk = data.player.atk;
   player.def = data.player.def || 0;
   player.keys = data.player.keys || 0;
+  player.job = data.player.job || player.job;
   serverLevel = data.player.level;
   serverExp = data.player.exp;
   serverMaxExp = data.player.maxExp;
-
   if (data.inventory) inventory = data.inventory;
-
   updateHUD();
 }
 
@@ -668,51 +542,34 @@ function showClueOverlay() {
     clueDiv.onclick = () => {
       clueDiv.remove();
     };
-    clueDiv.innerHTML = `
-          <img src="res/objects/clue_hint.png" alt="Petunjuk" style="max-width: 80%; max-height: 80%; image-rendering: pixelated; border: 4px solid #f1c40f; border-radius: 10px; background: #2c3e50; padding: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
-          <p style="color: white; font-weight: bold; margin-top: 15px; font-size: 18px;">Klik di mana saja untuk menutup petunjuk</p>
-      `;
+    clueDiv.innerHTML = `<img src="res/objects/clue_hint.png" alt="Petunjuk" style="max-width: 80%; max-height: 80%; image-rendering: pixelated; border: 4px solid #f1c40f; border-radius: 10px; background: #2c3e50; padding: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);"><p style="color: white; font-weight: bold; margin-top: 15px; font-size: 18px;">Klik di mana saja untuk menutup petunjuk</p>`;
     document.body.appendChild(clueDiv);
   }
 }
 
 function renderInventory() {
-  if (document.getElementById("inv-name"))
-    document.getElementById("inv-name").innerText = player.name || "Player";
-  if (document.getElementById("inv-job"))
-    document.getElementById("inv-job").innerText = player.job || "Warrior";
-  if (document.getElementById("inv-job-list"))
-    document.getElementById("inv-job-list").innerText = player.job || "Warrior";
-  if (document.getElementById("inv-level"))
-    document.getElementById("inv-level").innerText = "Lv. " + serverLevel;
-  if (document.getElementById("inv-level-list"))
-    document.getElementById("inv-level-list").innerText = serverLevel;
-  if (document.getElementById("inv-hp"))
-    document.getElementById("inv-hp").innerText =
-      Math.ceil(player.hp) + " / " + player.maxHp;
-  if (document.getElementById("inv-mp"))
-    document.getElementById("inv-mp").innerText =
-      player.mp + " / " + player.maxMp;
-  if (document.getElementById("inv-exp"))
-    document.getElementById("inv-exp").innerText =
-      serverExp + " / " + serverMaxExp;
-  if (document.getElementById("inv-atk"))
-    document.getElementById("inv-atk").innerText = player.baseAtk;
-  if (document.getElementById("inv-def"))
-    document.getElementById("inv-def").innerText = player.def;
+  let finalName = player.name;
+  if (!finalName || finalName === "null" || finalName.trim() === "") finalName = "Player";
+  if (document.getElementById("inv-name")) document.getElementById("inv-name").innerText = finalName;
+  if (document.getElementById("inv-job")) document.getElementById("inv-job").innerText = player.job || "Warrior";
+  if (document.getElementById("inv-job-list")) document.getElementById("inv-job-list").innerText = player.job || "Warrior";
+  if (document.getElementById("inv-level")) document.getElementById("inv-level").innerText = "Lv. " + serverLevel;
+  if (document.getElementById("inv-level-list")) document.getElementById("inv-level-list").innerText = serverLevel;
+  if (document.getElementById("inv-hp")) document.getElementById("inv-hp").innerText = Math.ceil(player.hp) + " / " + player.maxHp;
+  if (document.getElementById("inv-mp")) document.getElementById("inv-mp").innerText = player.mp + " / " + player.maxMp;
+  if (document.getElementById("inv-exp")) document.getElementById("inv-exp").innerText = serverExp + " / " + serverMaxExp;
+  if (document.getElementById("inv-atk")) document.getElementById("inv-atk").innerText = player.baseAtk;
+  if (document.getElementById("inv-def")) document.getElementById("inv-def").innerText = player.def;
 
-  let prefix =
-    player.job === "Mage" ? "mage" : player.job === "Archer" ? "arc" : "war";
+  let prefix = player.job === "Mage" ? "mage" : player.job === "Archer" ? "arc" : "war";
   let imgEl = document.getElementById("inv-char-img");
   if (imgEl) imgEl.src = `res/player/${prefix}_bawah_1.png`;
 
   const listContainer = document.getElementById("inventory-list");
   if (!listContainer) return;
   listContainer.innerHTML = "";
-
   if (inventory.length === 0) {
-    listContainer.innerHTML =
-      '<p style="color: #bdc3c7; text-align: center; margin-top: 30px; font-weight: bold;">Tas / Inventory Kosong.</p>';
+    listContainer.innerHTML = '<p style="color: #bdc3c7; text-align: center; margin-top: 30px; font-weight: bold;">Tas / Inventory Kosong.</p>';
     return;
   }
 
@@ -721,15 +578,11 @@ function renderInventory() {
     itemDiv.className = "item-card";
     let imagePath = "res/objects/potion_red.png";
     if (item.type === "sword") imagePath = "res/objects/sword_normal.png";
-    if (item.type === "shield") imagePath = "res/objects/shield_wood.png";
-    if (item.type === "key") imagePath = "res/objects/key.png";
-    if (item.type === "clue") imagePath = "res/objects/clue_icon.png";
+    else if (item.type === "shield") imagePath = "res/objects/shield_wood.png";
+    else if (item.type === "key") imagePath = "res/objects/key.png";
+    else if (item.type === "clue") imagePath = "res/objects/clue_icon.png";
 
-    itemDiv.innerHTML = `
-            <div class="item-info">
-                <img src="${imagePath}" alt="item">
-                <div><div class="item-name">${item.name}</div><div class="item-qty">${item.equipped ? "[EQUIPPED]" : "Dimiliki: x" + item.count}</div></div>
-            </div>`;
+    itemDiv.innerHTML = `<div class="item-info"><img src="${imagePath}" alt="item"><div><div class="item-name">${item.name}</div><div class="item-qty">${item.equipped ? "[EQUIPPED]" : "Dimiliki: x" + item.count}</div></div></div>`;
 
     if (item.type === "potion") {
       let useBtn = document.createElement("button");
@@ -752,7 +605,6 @@ function renderInventory() {
       };
       itemDiv.appendChild(readBtn);
     }
-
     listContainer.appendChild(itemDiv);
   });
 }
@@ -780,8 +632,7 @@ function usePotion() {
 
 function spawnProjectile(x, y, dir, damage, type = "archer") {
   playSfx("attack");
-  let vx = 0,
-    vy = 0;
+  let vx = 0, vy = 0;
   if (dir === "up") vy = -6;
   else if (dir === "down") vy = 6;
   else if (dir === "left") vx = -6;
@@ -790,17 +641,25 @@ function spawnProjectile(x, y, dir, damage, type = "archer") {
   if (type === "mage") textureName = `petir_${projectileDirMap[dir]}_1`;
   else if (type === "fireball") textureName = `fireball_${dir}_1`;
   else if (type === "rock") textureName = `rock_down_1`;
-  projectiles.push({
-    x: x + 15,
-    y: y + 15,
-    vx,
-    vy,
-    size: 24,
-    damage,
-    kind: type,
-    textureName,
-    dir
-  });
+  projectiles.push({ x: x + 15, y: y + 15, vx, vy, size: 24, damage, kind: type, textureName, dir });
+}
+
+function isProjectileSolid(x, y) {
+  let col = Math.floor(x / TILE_SIZE),
+    row = Math.floor(y / TILE_SIZE);
+  if (
+    activeMap.length === 0 ||
+    row < 0 ||
+    row >= activeMap.length ||
+    col < 0 ||
+    col >= activeMap[0].length
+  )
+    return true;
+  let tileId = activeMap[row][col];
+  return (
+    tileId === 1 || tileId === 2 || tileId === 4 || tileId === 7 ||
+    tileId === 9 || tileId === 10 || tileId === 32
+  );
 }
 
 function updateProjectiles() {
@@ -808,7 +667,7 @@ function updateProjectiles() {
     let p = projectiles[i];
     p.x += p.vx;
     p.y += p.vy;
-    if (isSolid(p.x, p.y)) {
+    if (isProjectileSolid(p.x, p.y)) {
       projectiles.splice(i, 1);
       continue;
     }
@@ -833,7 +692,6 @@ function updateProjectiles() {
           enemy.x = kbX;
           enemy.y = kbY;
         }
-
         fetch("GameServlet", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -896,7 +754,7 @@ function stageClear() {
   ctx.fillText(
     "AREA DIBERSIHKAN!",
     canvas.width / 2 - 190,
-    canvas.height / 2 - 20,
+    canvas.height / 2 - 20
   );
   setTimeout(() => {
     backToMainMenu();
@@ -914,7 +772,6 @@ async function enterDungeon() {
   if (isTransitioning) return;
   isTransitioning = true;
   gameState = "TRANSITION";
-
   ctx.fillStyle = "rgba(0,0,0,1)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "white";
@@ -922,15 +779,12 @@ async function enterDungeon() {
   ctx.fillText(
     "MEMASUKI DUNGEON...",
     canvas.width / 2 - 230,
-    canvas.height / 2 - 20,
+    canvas.height / 2 - 20
   );
-
   await fetchMapFromServer("dungeon02");
-
   let spawnX = 240;
   let spawnY = 240;
   let foundStairs = false;
-
   for (let r = 0; r < activeMap.length; r++) {
     if (foundStairs) break;
     for (let c = 0; c < activeMap[r].length; c++) {
@@ -942,7 +796,6 @@ async function enterDungeon() {
       }
     }
   }
-
   fetch("GameServlet", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -956,7 +809,6 @@ async function enterDungeon() {
       enemies = parseServerEnemies(data.enemies);
       chests = data.chests;
       projectiles = [];
-
       isTransitioning = false;
       gameState = "PLAYING";
       requestAnimationFrame(gameLoop);
@@ -967,7 +819,6 @@ async function exitDungeon() {
   if (isTransitioning) return;
   isTransitioning = true;
   gameState = "TRANSITION";
-
   ctx.fillStyle = "rgba(0,0,0,1)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "white";
@@ -975,14 +826,11 @@ async function exitDungeon() {
   ctx.fillText(
     "KEMBALI KE PERMUKAAN...",
     canvas.width / 2 - 250,
-    canvas.height / 2 - 20,
+    canvas.height / 2 - 20
   );
-
   await fetchMapFromServer("world01");
-
   let spawnX = parseInt(localStorage.getItem("worldReturnX")) || 240;
   let spawnY = parseInt(localStorage.getItem("worldReturnY")) || 240;
-
   let pRow = Math.floor(spawnY / TILE_SIZE);
   let pCol = Math.floor(spawnX / TILE_SIZE);
   for (let r = pRow - 2; r <= pRow + 2; r++) {
@@ -992,7 +840,6 @@ async function exitDungeon() {
       }
     }
   }
-
   fetch("GameServlet", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -1006,7 +853,6 @@ async function exitDungeon() {
       enemies = parseServerEnemies(data.enemies);
       chests = data.chests;
       projectiles = [];
-
       isTransitioning = false;
       gameState = "PLAYING";
       requestAnimationFrame(gameLoop);
@@ -1014,10 +860,9 @@ async function exitDungeon() {
 }
 
 async function startGame(job) {
-  // AMBIL VALUE DARI INPUT USERNAME
   let usernameInput = document.getElementById("username-input");
   let username = usernameInput ? usernameInput.value.trim() : "Player";
-  if (!username) username = "Player"; // Jika dikosongkan, default ke Player
+  if (!username) username = "Player";
 
   isGameStarted = true;
   stageFinished = false;
@@ -1030,7 +875,6 @@ async function startGame(job) {
 
   await fetchMapFromServer("world01");
 
-  // KIRIM USERNAME KE JAVA BACKEND
   fetch("GameServlet", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -1057,29 +901,55 @@ async function startGame(job) {
 }
 
 function prepareSlot(action) {
-  pendingAction = action;
-  showScreen("slot-menu");
+    pendingAction = action;
+    showScreen("slot-menu");
 }
+
 function cancelSlotSelection() {
-  pendingAction === "save"
-    ? showScreen("settings-menu")
-    : showScreen("main-menu");
+    if (pendingAction === "save") {
+        showScreen("settings-menu");
+    } else {
+        showScreen("main-menu");
+    }
 }
+
 function performSlotAction(slotId) {
-  pendingAction === "save" ? saveGameData(slotId) : loadGameData(slotId);
+    if (pendingAction === "save") {
+        saveGameData(slotId);
+    } else {
+        loadGameData(slotId);
+    }
 }
+
 function saveGameData(slotId) {
+  let safeX = Math.round(player.x);
+  let safeY = Math.round(player.y);
+  let safeHP = Math.round(player.hp);
+
+  localStorage.setItem("savedMap_" + slotId, currentMapName);
+
   fetch("GameServlet", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `action=save&slot_id=${slotId}&x=${player.x}&y=${player.y}&hp=${player.hp}&job=${player.job}`
+    body: `action=save&slot_id=${slotId}&x=${safeX}&y=${safeY}&hp=${safeHP}&job=${player.job}`
   })
-    .then((res) => res.text())
-    .then(() => {
-      alert("Disimpan!");
-      showScreen("settings-menu");
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.status === "saved") {
+        alert("BERHASIL: Game tersimpan ke Database!");
+        showScreen("settings-menu");
+      } else {
+        alert(
+          "GAGAL MENYIMPAN!\nPastikan XAMPP nyala dan tabel player_save sudah terbuat."
+        );
+      }
+    })
+    .catch((err) => {
+      alert("ERROR SERVER! Cek tab 'Apache Tomcat' di jendela Output NetBeans Anda.");
+      console.error(err);
     });
 }
+
 async function loadGameData(slotId) {
   fetch("GameServlet", {
     method: "POST",
@@ -1096,11 +966,32 @@ async function loadGameData(slotId) {
       player.x = data.player.x;
       player.y = data.player.y;
       syncPlayerStatsAndEnemies(data);
-      enemies = parseServerEnemies(data.enemies);
-      chests = data.chests;
+
+      let savedMap = localStorage.getItem("savedMap_" + slotId) || "world01";
+      await fetchMapFromServer(savedMap);
+
+      if (savedMap === "dungeon02") {
+        fetch("GameServlet", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `action=enter_dungeon&spawnX=${Math.round(player.x)}&spawnY=${Math.round(player.y)}`
+        })
+          .then((res) => res.json())
+          .then((d) => {
+            enemies = parseServerEnemies(d.enemies);
+            chests = d.chests;
+          });
+      } else {
+        enemies = parseServerEnemies(data.enemies);
+        chests = data.chests;
+      }
+
       projectiles = [];
-      await fetchMapFromServer("world01");
       showScreen("none");
+
+      if (document.getElementById("hud")) {
+        document.getElementById("hud").style.display = "block";
+      }
 
       playBGM();
       requestAnimationFrame(gameLoop);
@@ -1119,21 +1010,17 @@ window.addEventListener("keydown", (e) => {
     return;
   }
   keys[e.code] = true;
-
   if (gameState === "PLAYING" && !stageFinished) {
     if (e.code === "Space") {
       e.preventDefault();
-
       let faceX = player.x + player.width / 2;
       let faceY = player.y + player.height / 2;
       if (player.direction === "up") faceY -= TILE_SIZE;
       else if (player.direction === "down") faceY += TILE_SIZE;
       else if (player.direction === "left") faceX -= TILE_SIZE;
       else if (player.direction === "right") faceX += TILE_SIZE;
-
       let targetCol = Math.floor(faceX / TILE_SIZE);
       let targetRow = Math.floor(faceY / TILE_SIZE);
-
       if (activeMap[targetRow] && activeMap[targetRow][targetCol] === 7) {
         if (player.keys > 0) {
           activeMap[targetRow][targetCol] = 8;
@@ -1152,7 +1039,6 @@ window.addEventListener("keydown", (e) => {
         }
         return;
       }
-
       let atkBox = {
         x: player.x - 20,
         y: player.y - 20,
@@ -1179,14 +1065,12 @@ window.addEventListener("keydown", (e) => {
                   : chest.item === "clue"
                     ? "Kertas Petunjuk"
                     : "Dungeon Key";
-
           showFloatingDamage(
             chest.x,
             chest.y - 10,
             `+1 ${itemName}`,
-            "#f1c40f",
+            "#f1c40f"
           );
-
           if (chest.item === "sword")
             showFloatingDamage(player.x, player.y - 40, "ATK +15!", "#e74c3c");
           if (chest.item === "shield")
@@ -1194,7 +1078,6 @@ window.addEventListener("keydown", (e) => {
 
           playSfx("unlock");
           setTimeout(() => playSfx("pickup"), 200);
-
           fetch("GameServlet", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -1210,9 +1093,7 @@ window.addEventListener("keydown", (e) => {
           hitChest = true;
         }
       });
-
       if (hitChest) return;
-
       if (player.job === "Mage") {
         if (player.isAttacking) return;
         player.isAttacking = true;
@@ -1236,7 +1117,7 @@ window.addEventListener("keydown", (e) => {
           player.y,
           player.direction,
           player.baseAtk,
-          "rock",
+          "rock"
         );
         setTimeout(() => {
           player.isAttacking = false;
@@ -1257,7 +1138,6 @@ function updateHUD() {
   const hpFill = document.getElementById("hp-fill");
   const resName = document.getElementById("res-name");
   const resVal = document.getElementById("res-val");
-
   if (hpVal) hpVal.innerText = Math.ceil(player.hp);
   if (maxHpVal) maxHpVal.innerText = player.maxHp;
   if (hpFill) hpFill.style.width = (player.hp / player.maxHp) * 100 + "%";
@@ -1323,12 +1203,12 @@ function drawMap() {
   let startCol = Math.max(0, Math.floor(camera.x / TILE_SIZE)),
     endCol = Math.min(
       activeMap[0].length,
-      startCol + canvas.width / TILE_SIZE + 1,
+      startCol + canvas.width / TILE_SIZE + 1
     );
   let startRow = Math.max(0, Math.floor(camera.y / TILE_SIZE)),
     endRow = Math.min(
       activeMap.length,
-      startRow + canvas.height / TILE_SIZE + 1,
+      startRow + canvas.height / TILE_SIZE + 1
     );
   for (let row = startRow; row < endRow; row++) {
     for (let col = startCol; col < endCol; col++) {
@@ -1339,7 +1219,7 @@ function drawMap() {
           col * TILE_SIZE - camera.x,
           row * TILE_SIZE - camera.y,
           TILE_SIZE,
-          TILE_SIZE,
+          TILE_SIZE
         );
     }
   }
@@ -1382,7 +1262,6 @@ function updateEnemies() {
     const dx = playerCenter.x - enemyCenter.x,
       dy = playerCenter.y - enemyCenter.y,
       distance = Math.sqrt(dx * dx + dy * dy);
-
     const aggro = enemy.isBoss ? 600 : ENEMY_AGGRO_RANGE;
     const deaggro = enemy.isBoss ? 800 : ENEMY_DEAGGRO_RANGE;
     const atkRange = enemy.isBoss ? 80 : ENEMY_ATTACK_RANGE;
@@ -1396,7 +1275,7 @@ function updateEnemies() {
               enemy.x,
               enemy.y - 20,
               "BOSS ENGAGED!",
-              "#e74c3c",
+              "#e74c3c"
             );
         }
         break;
@@ -1409,7 +1288,6 @@ function updateEnemies() {
           enemy.state = "ATTACK";
           break;
         }
-
         let absDx = Math.abs(dx),
           absDy = Math.abs(dy),
           moveX = 0,
@@ -1421,7 +1299,6 @@ function updateEnemies() {
           moveY = dy > 0 ? enemy.speed : -enemy.speed;
           enemy.direction = dy > 0 ? "down" : "up";
         }
-
         if (moveX !== 0) {
           if (canMoveTo(enemy.x + moveX, enemy.y, enemy.width, enemy.height)) {
             enemy.x += moveX;
@@ -1452,7 +1329,6 @@ function updateEnemies() {
         if (enemy.attackCooldown <= 0) {
           let dmg = enemy.damage - player.def;
           if (dmg < 1) dmg = 1;
-
           if (player.isDefending) dmg = Math.floor(dmg * 0.3);
           player.hp -= dmg;
           showFloatingDamage(player.x, player.y, dmg, "red");
@@ -1488,13 +1364,10 @@ function drawEnemies() {
       ey > canvas.height
     )
       return;
-
     const frame = Math.floor(Date.now() / 250) % 2 === 0 ? "1" : "2";
-
     let isAttacking = enemy.attackCooldown > (enemy.isBoss ? 70 : 40);
     let actionStr = isAttacking ? "attack_" : "";
     let assetKey = `${enemy.skin}_${actionStr}${enemy.direction}_${frame}`;
-
     if (!assets.enemy[assetKey]) {
       assetKey = `${enemy.skin}_${enemy.direction}_${frame}`;
       if (!assets.enemy[assetKey]) {
@@ -1504,7 +1377,6 @@ function drawEnemies() {
         assetKey = `${enemy.skin}_${frame}`;
       }
     }
-
     let img = assets.enemy[assetKey];
     if (img && img.complete && img.naturalWidth > 0) {
       ctx.drawImage(img, ex, ey, enemy.width, enemy.height);
@@ -1512,7 +1384,6 @@ function drawEnemies() {
       ctx.fillStyle = enemy.isBoss ? "purple" : "red";
       ctx.fillRect(ex, ey, enemy.width, enemy.height);
     }
-
     if (enemy.hitFlash > 0) {
       ctx.save();
       ctx.globalAlpha = 0.5;
@@ -1521,7 +1392,6 @@ function drawEnemies() {
       ctx.restore();
       enemy.hitFlash--;
     }
-
     const hpPercent = enemy.hp / enemy.maxHp;
     if (enemy.isBoss) {
       ctx.fillStyle = "#ffd700";
@@ -1549,7 +1419,6 @@ function updatePlayer() {
   let isMoving = false,
     newX = player.x,
     newY = player.y;
-
   if (keys["ArrowUp"] || keys["KeyW"]) {
     newY -= player.speed;
     player.direction = "up";
@@ -1567,12 +1436,10 @@ function updatePlayer() {
     player.direction = "right";
     isMoving = true;
   }
-
   if (canMoveTo(newX, newY, player.width - 20, player.height - 10)) {
     player.x = newX;
     player.y = newY;
   }
-
   player.isMoving = isMoving;
   if (isMoving) {
     player.frameCounter++;
@@ -1583,12 +1450,10 @@ function updatePlayer() {
   } else {
     player.frameNum = 1;
   }
-
   let centerFeetX = player.x + player.width / 2;
   let centerFeetY = player.y + player.height - 10;
   let currCol = Math.floor(centerFeetX / TILE_SIZE);
   let currRow = Math.floor(centerFeetY / TILE_SIZE);
-
   if (
     activeMap[currRow] &&
     (activeMap[currRow][currCol] === 11 ||
@@ -1612,13 +1477,11 @@ function gameLoop() {
     updateEnemies();
     updatePuzzle();
     updateCamera();
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawMap();
     drawChests();
     drawEnemies();
     drawPuzzle();
-
     projectiles.forEach((p) => {
       const img = assets.projectile[p.textureName];
       if (img && img.complete && img.naturalWidth > 0)
@@ -1630,7 +1493,6 @@ function gameLoop() {
         ctx.fill();
       }
     });
-
     for (let i = floatingTexts.length - 1; i >= 0; i--) {
       let text = floatingTexts[i];
       ctx.fillStyle = text.color;
@@ -1640,17 +1502,15 @@ function gameLoop() {
       text.life--;
       if (text.life <= 0) floatingTexts.splice(i, 1);
     }
-
     const useAttackTexture =
       (player.job || "Warrior") === "Warrior" && player.isAttacking;
     const textureKey = getPlayerTextureKey(
       player.job || "Warrior",
       player.direction,
       1,
-      useAttackTexture,
+      useAttackTexture
     );
     const img = assets.player[textureKey];
-
     if (img && img.complete && img.naturalWidth > 0) {
       const yBobbing = player.isMoving ? Math.sin(Date.now() / 80) * 3 : 0;
       ctx.drawImage(
@@ -1658,10 +1518,9 @@ function gameLoop() {
         player.x - camera.x,
         player.y - camera.y + yBobbing,
         player.width,
-        player.height,
+        player.height
       );
     }
-
     if (player.isAttacking) {
       const px = player.x - camera.x + player.width / 2,
         py = player.y - camera.y + player.height / 2;
@@ -1684,7 +1543,7 @@ function gameLoop() {
           py + Math.sin(angle) * 30,
           10,
           0,
-          Math.PI * 2,
+          Math.PI * 2
         );
         ctx.fill();
         ctx.restore();
@@ -1698,7 +1557,6 @@ function gameLoop() {
         ctx.restore();
       }
     }
-
     if (player.isDefending) {
       ctx.strokeStyle = "#3498db";
       ctx.lineWidth = 3;
@@ -1708,11 +1566,10 @@ function gameLoop() {
         player.y + 24 - camera.y,
         30,
         0,
-        Math.PI * 2,
+        Math.PI * 2
       );
       ctx.stroke();
     }
-
     if (playerHitFlash > 0) {
       ctx.save();
       ctx.globalAlpha = playerHitFlash / 25;
@@ -1722,6 +1579,5 @@ function gameLoop() {
       playerHitFlash--;
     }
   }
-
   if (gameState === "PLAYING") requestAnimationFrame(gameLoop);
 }

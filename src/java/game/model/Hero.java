@@ -36,7 +36,7 @@ public class Hero extends Character {
         this.keyCount = 0;
         this.hasSword = false;
         this.hasShield = false;
-        this.hasClue = false; // RESET PETUNJUK SAAT NEW GAME
+        this.hasClue = false;
 
         if ("Warrior".equals(jobName)) {
             this.maxHp = 150;
@@ -110,6 +110,30 @@ public class Hero extends Character {
 
     public int getLevel() {
         return this.level;
+    }
+
+    public int getGold() {
+        return gold;
+    }
+
+    public void setGold(int gold) {
+        this.gold = gold;
+    }
+
+    public Inventory getInventory() {
+        return inventory;
+    }
+
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
+    }
+
+    public String getJob() {
+        return job;
+    }
+
+    public void setJob(String job) {
+        this.job = job;
     }
 
     public int getExp() {
@@ -224,7 +248,19 @@ public class Hero extends Character {
     public void setDef(int def) {
         this.def = def;
     }
-
+    
+    public void setLevel(int level) {
+        this.level = level; 
+    }
+    
+    public void setExp(int exp) {
+        this.exp = exp; 
+    }
+    
+    public void setMaxExp(int maxExp) {
+        this.maxExp = maxExp; 
+    }
+    
     public void move(int dx, int dy) {
         this.x += dx;
         this.y += dy;

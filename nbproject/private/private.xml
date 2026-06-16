@@ -27,7 +27,6 @@
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/objects/heart_blank.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/index.jsp</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/src/java/game/model/Hero.java</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/src/java/game/engine/BattleSystem.java</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/src/java/game/model/Inventory.java</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/src/java/game/engine/GameMap.java</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/style.css</file>
@@ -35,9 +34,6 @@
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/maps/map01.txt</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/maps/world01.txt</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/sand.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/player/arc_atas_1.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/player/arc_kanan_1.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/player/arc_kiri_1.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/player/mage_atas_1.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/player/mage_bawah_1.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/player/mage_kanan_1.png</file>
@@ -84,35 +80,7 @@
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/monster/skeletonlord_up_1.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/monster/skeletonlord_right_2.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/monster/skeletonlord_phase2_up_2.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/037.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/036.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/035.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/033.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/032.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/031.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/029.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/028.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/027.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/026.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/025.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/024.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/023.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/022.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/003.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/002.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/001.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/000.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/earth.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/012.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/014.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/013.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/016.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/017.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/018.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/019.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/020.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/021.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/034.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/grass.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/tree.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/wall.png</file>
@@ -120,17 +88,7 @@
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles_interactive/drytree.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles_interactive/metalplate.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles_interactive/trunk.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/015.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/010.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/009.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/007.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/008.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/004.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/030.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/011.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/005.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/water.png</file>
-            <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/tiles/006.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/monster/skeletonlord_phase2_left_1.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/monster/skeletonlord_phase2_left_2.png</file>
             <file>file:/D:/KULIAH/Semester4/pemrograman%20berbasis%20orientasi/Tubesasli/questchornicle/web/res/monster/skeletonlord_phase2_down_1.png</file>
