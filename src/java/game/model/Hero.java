@@ -16,7 +16,7 @@ public class Hero extends Character {
     private int keyCount = 0;
     private boolean hasSword = false;
     private boolean hasShield = false;
-    private boolean hasClue = false; // VARIABEL BARU UNTUK PETUNJUK
+    private boolean hasClue = false;
 
     public Hero(String nama) {
         this.nama = nama;

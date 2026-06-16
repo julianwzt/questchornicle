@@ -81,12 +81,12 @@ public class GameServlet extends HttpServlet {
                 }
                 out.print(engine.getGameStateAsJson());
             }
-            // --- MEMASUKI DUNGEON (SPAWN DINAMIS DI BAWAH TILE 37) ---
+            // Logika masuk dungeon
             else if ("enter_dungeon".equals(action)) {
                 engine.spawnDungeonEntities();
                 if (engine.getHero() != null) {
-                    int spawnX = 240; // Fallback X
-                    int spawnY = 240; // Fallback Y
+                    int spawnX = 240;
+                    int spawnY = 240;
                     try {
                         if (request.getParameter("spawnX") != null)
                             spawnX = Integer.parseInt(request.getParameter("spawnX"));
@@ -100,7 +100,7 @@ public class GameServlet extends HttpServlet {
                 }
                 out.print(engine.getGameStateAsJson());
             } else if ("exit_dungeon".equals(action)) {
-                engine.spawnEntities(); // Load ulang musuh dan peti di World01
+                //engine.spawnEntities();
                 if (engine.getHero() != null) {
                     int spawnX = 240;
                     int spawnY = 240;

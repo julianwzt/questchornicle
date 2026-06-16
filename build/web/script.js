@@ -1,9 +1,7 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// ============================================
-// AUDIO SYSTEM (BGM & SFX)
-// ============================================
+//sound
 const BGM_VOLUME = 0.3;
 const bgmWorld = new Audio("res/sound/BlueBoyAdventure.wav");
 const bgmDungeon = new Audio("res/sound/background_music.mp3");
@@ -13,7 +11,7 @@ bgmWorld.volume = BGM_VOLUME;
 bgmDungeon.loop = true;
 bgmDungeon.volume = BGM_VOLUME;
 
-let currentBgm = bgmWorld; // Default map awal
+let currentBgm = bgmWorld;
 let isBgmPlaying = false;
 let isBgmMuted = false;
 
@@ -40,7 +38,7 @@ function stopBGM() {
 
 function switchBGM(mapName) {
   let wasPlaying = isBgmPlaying;
-  pauseBGM(); // Hentikan BGM map sebelumnya
+  pauseBGM();
 
   if (mapName === "dungeon02") {
     currentBgm = bgmDungeon;
@@ -117,9 +115,7 @@ function playSfx(name) {
   } catch (e) {}
 }
 
-// ============================================
-// MINI PUZZLE SYSTEM - PRESSURE PLATES
-// ============================================
+//puzzle
 let puzzlePlates = [];
 let puzzleSolved = false;
 let currentPuzzleIndex = 0;
@@ -241,9 +237,7 @@ function drawPuzzle() {
   });
 }
 
-// ============================================
-// ASSETS & RESOURCE LOADING
-// ============================================
+//ASSETS
 const assets = {
   tiles: {},
   player: {},
@@ -285,7 +279,7 @@ function getPlayerTextureKey(
     : sprite;
 }
 
-// LOAD TILES
+//TILES
 loadAsset("tiles", "0", "res/tiles/002.png");
 loadAsset("tiles", "8", "res/tiles/000.png");
 loadAsset("tiles", "2", "res/tiles/019.png");
@@ -311,7 +305,7 @@ loadAsset("tiles", "32", "res/tiles/032.png");
 loadAsset("tiles", "34", "res/tiles/034.png");
 loadAsset("tiles", "37", "res/tiles/037.png");
 
-// LOAD PLAYER
+//PLAYER
 Object.values(PLAYER_TEXTURES).forEach(({ prefix }) => {
   ["atas_1", "bawah_1", "kiri_1", "kanan_1"].forEach((sprite) => {
     loadAsset(
@@ -325,7 +319,7 @@ Object.values(PLAYER_TEXTURES).forEach(({ prefix }) => {
       "atas_1_nyerang",
       "bawah_1_nyerang",
       "kiri_1_nyerang",
-      "kanan_1_nyerang",
+      "kanan_1_nyerang"
     ].forEach((sprite) => {
       loadAsset(
         "player",
@@ -336,24 +330,22 @@ Object.values(PLAYER_TEXTURES).forEach(({ prefix }) => {
   }
 });
 
-// LOAD OBJECTS & ITEMS
+//ITEMS
 loadAsset("objects", "sword", "res/objects/sword_normal.png");
 loadAsset("objects", "shield", "res/objects/shield_wood.png");
 loadAsset("objects", "key", "res/objects/key.png");
 loadAsset("objects", "potion", "res/objects/potion_red.png");
 loadAsset("objects", "chest", "res/objects/chest.png");
 loadAsset("objects", "chest_opened", "res/objects/chest_opened.png");
-
-// LOAD CLUE IMAGES (Ikon tas dan Gambarnya)
 loadAsset("objects", "clue_icon", "res/objects/clue_icon.png");
 loadAsset("objects", "clue_hint", "res/objects/clue_hint.png");
 
-// LOAD PROJECTILES
+//PROJECTILES
 const projectileDirMap = {
   up: "atas",
   down: "bawah",
   left: "kiri",
-  right: "kanan",
+  right: "kanan"
 };
 ["up", "down", "left", "right"].forEach((dir) => {
   let indoDir = projectileDirMap[dir];
@@ -375,7 +367,7 @@ const projectileDirMap = {
 });
 loadAsset("projectile", `rock_down_1`, `res/projectile/rock_down_1.png`);
 
-// LOAD ENEMIES
+//musuh
 const dirs = ["up", "down", "left", "right"];
 dirs.forEach((dir) => {
   loadAsset("enemy", `orc_${dir}_1`, `res/monster/orc_${dir}_1.png`);
@@ -418,9 +410,7 @@ loadAsset("enemy", "slime_down_2", "res/monster/greenslime_down_2.png");
 loadAsset("enemy", "bat_down_1", "res/monster/bat_down_1.png");
 loadAsset("enemy", "bat_down_2", "res/monster/bat_down_2.png");
 
-// ============================================
-// GAME LOGIC & SYSTEM
-// ============================================
+//gamelogic
 const TILE_SIZE = 48;
 let activeMap = [];
 let MAP_WIDTH = 0;
@@ -551,7 +541,7 @@ let player = {
     fetch("GameServlet", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `action=use_skill&skill_num=1`,
+      body: `action=use_skill&skill_num=1`
     })
       .then((res) => res.json())
       .then((data) => this.processSkill(data));
@@ -560,7 +550,7 @@ let player = {
     fetch("GameServlet", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `action=use_skill&skill_num=2`,
+      body: `action=use_skill&skill_num=2`
     })
       .then((res) => res.json())
       .then((data) => this.processSkill(data));
@@ -621,7 +611,7 @@ let player = {
         fetch("GameServlet", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: `action=attack_enemy&enemy_id=${idx}`,
+          body: `action=attack_enemy&enemy_id=${idx}`
         })
           .then((res) => res.json())
           .then((data) => syncPlayerStatsAndEnemies(data));
@@ -630,7 +620,7 @@ let player = {
     setTimeout(() => {
       this.isAttacking = false;
     }, 150);
-  },
+  }
 };
 
 function syncPlayerStatsAndEnemies(data) {
@@ -651,9 +641,7 @@ function syncPlayerStatsAndEnemies(data) {
     playSfx("levelup");
   }
 
-  // AMBIL NAMA DARI JSON
   player.name = data.player.name;
-
   player.hp = data.player.hp;
   player.maxHp = data.player.maxHp;
   player.mp = data.player.mp;
@@ -670,14 +658,13 @@ function syncPlayerStatsAndEnemies(data) {
   updateHUD();
 }
 
-// LOGIKA BARU UNTUK MEMUNCULKAN GAMBAR PETUNJUK OVERLAY
 function showClueOverlay() {
   let clueDiv = document.getElementById("clue-overlay");
   if (!clueDiv) {
     clueDiv = document.createElement("div");
     clueDiv.id = "clue-overlay";
     clueDiv.className = "overlay active";
-    clueDiv.style.zIndex = "100"; // Supaya muncul di atas inventory
+    clueDiv.style.zIndex = "100";
     clueDiv.onclick = () => {
       clueDiv.remove();
     };
@@ -690,19 +677,16 @@ function showClueOverlay() {
 }
 
 function renderInventory() {
-  // SET NAMA DAN JOB DENGAN ID YANG SUDAH DIPERBAIKI
   if (document.getElementById("inv-name"))
     document.getElementById("inv-name").innerText = player.name || "Player";
   if (document.getElementById("inv-job"))
     document.getElementById("inv-job").innerText = player.job || "Warrior";
   if (document.getElementById("inv-job-list"))
     document.getElementById("inv-job-list").innerText = player.job || "Warrior";
-
   if (document.getElementById("inv-level"))
     document.getElementById("inv-level").innerText = "Lv. " + serverLevel;
   if (document.getElementById("inv-level-list"))
     document.getElementById("inv-level-list").innerText = serverLevel;
-
   if (document.getElementById("inv-hp"))
     document.getElementById("inv-hp").innerText =
       Math.ceil(player.hp) + " / " + player.maxHp;
@@ -712,7 +696,6 @@ function renderInventory() {
   if (document.getElementById("inv-exp"))
     document.getElementById("inv-exp").innerText =
       serverExp + " / " + serverMaxExp;
-
   if (document.getElementById("inv-atk"))
     document.getElementById("inv-atk").innerText = player.baseAtk;
   if (document.getElementById("inv-def"))
@@ -782,7 +765,7 @@ function usePotion() {
   fetch("GameServlet", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `action=use_potion`,
+    body: `action=use_potion`
   })
     .then((res) => res.json())
     .then((data) => {
@@ -816,7 +799,7 @@ function spawnProjectile(x, y, dir, damage, type = "archer") {
     damage,
     kind: type,
     textureName,
-    dir,
+    dir
   });
 }
 
@@ -854,7 +837,7 @@ function updateProjectiles() {
         fetch("GameServlet", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: `action=attack_enemy&enemy_id=${idx}`,
+          body: `action=attack_enemy&enemy_id=${idx}`
         })
           .then((res) => res.json())
           .then((data) => syncPlayerStatsAndEnemies(data));
@@ -963,7 +946,7 @@ async function enterDungeon() {
   fetch("GameServlet", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `action=enter_dungeon&spawnX=${spawnX}&spawnY=${spawnY}`,
+    body: `action=enter_dungeon&spawnX=${spawnX}&spawnY=${spawnY}`
   })
     .then((res) => res.json())
     .then((data) => {
@@ -1013,7 +996,7 @@ async function exitDungeon() {
   fetch("GameServlet", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `action=exit_dungeon&spawnX=${spawnX}&spawnY=${spawnY}`,
+    body: `action=exit_dungeon&spawnX=${spawnX}&spawnY=${spawnY}`
   })
     .then((res) => res.json())
     .then((data) => {
@@ -1051,7 +1034,7 @@ async function startGame(job) {
   fetch("GameServlet", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `action=new_game&job=${job}&username=${encodeURIComponent(username)}`,
+    body: `action=new_game&job=${job}&username=${encodeURIComponent(username)}`
   })
     .then((res) => res.json())
     .then((data) => {
@@ -1089,7 +1072,7 @@ function saveGameData(slotId) {
   fetch("GameServlet", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `action=save&slot_id=${slotId}&x=${player.x}&y=${player.y}&hp=${player.hp}&job=${player.job}`,
+    body: `action=save&slot_id=${slotId}&x=${player.x}&y=${player.y}&hp=${player.hp}&job=${player.job}`
   })
     .then((res) => res.text())
     .then(() => {
@@ -1101,7 +1084,7 @@ async function loadGameData(slotId) {
   fetch("GameServlet", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `action=load&slot_id=${slotId}`,
+    body: `action=load&slot_id=${slotId}`
   })
     .then((res) => res.text())
     .then(async (text) => {
@@ -1159,7 +1142,7 @@ window.addEventListener("keydown", (e) => {
           fetch("GameServlet", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `action=use_key`,
+            body: `action=use_key`
           })
             .then((res) => res.json())
             .then((data) => syncPlayerStatsAndEnemies(data));
@@ -1173,7 +1156,7 @@ window.addEventListener("keydown", (e) => {
       let atkBox = {
         x: player.x - 20,
         y: player.y - 20,
-        size: player.width + 40,
+        size: player.width + 40
       };
       let hitChest = false;
       chests.forEach((chest, idx) => {
@@ -1183,7 +1166,7 @@ window.addEventListener("keydown", (e) => {
             x: chest.x,
             y: chest.y,
             width: TILE_SIZE,
-            height: TILE_SIZE,
+            height: TILE_SIZE
           })
         ) {
           let itemName =
@@ -1215,7 +1198,7 @@ window.addEventListener("keydown", (e) => {
           fetch("GameServlet", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `action=open_chest&chest_id=${idx}`,
+            body: `action=open_chest&chest_id=${idx}`
           })
             .then((res) => res.json())
             .then((data) => {
@@ -1236,7 +1219,7 @@ window.addEventListener("keydown", (e) => {
         fetch("GameServlet", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: `action=use_skill&skill_num=0`,
+          body: `action=use_skill&skill_num=0`
         })
           .then((res) => res.json())
           .then((data) => {
@@ -1384,7 +1367,7 @@ function showFloatingDamage(x, y, damage, color) {
     y: y,
     text: typeof damage === "number" ? "-" + Math.floor(damage) : damage,
     color: color,
-    life: 60,
+    life: 60
   });
 }
 
@@ -1393,7 +1376,7 @@ function updateEnemies() {
     if (!enemy.alive) return;
     const playerCenter = {
         x: player.x + player.width / 2,
-        y: player.y + player.height / 2,
+        y: player.y + player.height / 2
       },
       enemyCenter = enemy.getCenter();
     const dx = playerCenter.x - enemyCenter.x,
@@ -1478,7 +1461,7 @@ function updateEnemies() {
           fetch("GameServlet", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: `action=take_damage&damage=${dmg}`,
+            body: `action=take_damage&damage=${dmg}`
           });
           if (player.hp <= 0) {
             player.hp = 0;

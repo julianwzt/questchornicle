@@ -63,46 +63,37 @@ canvas {
   margin-bottom: 30px;
 }
 
-/* =======================================
-  PERBAIKAN TOMBOL MENU & JOB CARD 
-   ======================================= */
 .selected {
-
 }
 
-/* 2. Set warna default tombol menjadi gelap */
 .menu-btn,
 .job-card {
-  background: var(--primary); /* Diubah dari #444 ke warna tema utama yang gelap */
+  background: var(--primary);
   border: 2px solid transparent;
   color: white;
   padding: 15px;
   margin: 10px;
   cursor: pointer;
-  transition: all 0.3s ease; /* Transisi diperhalus */
+  transition: all 0.3s ease;
   width: 200px;
   text-align: center;
   font-weight: bold;
   user-select: none;
-  border-radius: 5px; /* Sedikit lengkungan agar tidak kaku */
+  border-radius: 5px;
   outline: none;
 }
 
-/* 3. Efek Oren + Membesar HANYA SAAT DI-HOVER */
 .menu-btn:hover,
 .job-card:hover {
-  background: var(--accent) !important; /* Warna oren hanya muncul saat mouse masuk */
+  background: var(--accent) !important;
   border-color: white;
-  transform: scale(1.1); /* Efek zoom/membesar */
-  color: white;
+  transform: scale(1.1);
 }
 
-/* 4. Mencegah warna nyangkut setelah tombol diklik */
 .menu-btn:focus,
 .job-card:focus {
   background: var(--primary); 
 }
-/* ======================================= */
 
 .settings-box {
   background: #2c3e50;
@@ -154,7 +145,6 @@ canvas {
   font-family: Arial, sans-serif;
 }
 
-/* --- Panel Kiri (Status) --- */
 .stats-panel {
   width: 35%;
   background: rgba(0, 0, 0, 0.5);
@@ -217,7 +207,6 @@ canvas {
   color: #bdc3c7;
 }
 
-/* --- Panel Kanan (Item List) --- */
 .items-panel {
   width: 65%;
   padding: 20px;
@@ -242,7 +231,6 @@ canvas {
   padding-right: 10px;
 }
 
-/* Custom Scrollbar */
 .items-grid::-webkit-scrollbar {
   width: 8px;
 }
@@ -255,7 +243,6 @@ canvas {
   border-radius: 4px;
 }
 
-/* Kartu Barang (Item Card) */
 .item-card {
   display: flex;
   justify-content: space-between;
@@ -309,7 +296,6 @@ canvas {
   transform: scale(1.05);
 }
 
-/* Tombol Tutup Merah di Pojok */
 .close-btn {
   position: absolute;
   top: -15px;

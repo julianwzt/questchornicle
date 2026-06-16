@@ -140,7 +140,6 @@ public class GameEngine {
         }
         json.append("],");
 
-        // --- MENYUSUN ITEM INVENTORY ---
         List<String> invItems = new ArrayList<>();
         if (hero.getPotionCount() > 0) {
             invItems.add("{\"name\": \"Red Potion\", \"type\": \"potion\", \"count\": " + hero.getPotionCount() + "}");
@@ -154,7 +153,6 @@ public class GameEngine {
         if (hero.isHasShield()) {
             invItems.add("{\"name\": \"Wooden Shield\", \"type\": \"shield\", \"count\": 1, \"equipped\": true}");
         }
-        // MENAMBAHKAN KERTAS PETUNJUK KE INVENTORY JSON
         if (hero.isHasClue()) {
             invItems.add("{\"name\": \"Kertas Petunjuk\", \"type\": \"clue\", \"count\": 1, \"equipped\": false}");
         }

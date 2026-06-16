@@ -4,7 +4,7 @@ import java.sql.*;
 import game.model.Hero;
 
 public class SaveManager {
-    private final String URL = "jdbc:mysql://localhost:3306/quest_db?useSSL=false&allowPublicKeyRetrieval=true";
+    private final String URL = "jdbc:mysql://localhost:3306/quest_db";
     private final String USER = "root";
     private final String PASS = ""; 
 

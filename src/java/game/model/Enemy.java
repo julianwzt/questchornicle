@@ -22,7 +22,6 @@ public class Enemy extends Character {
         return false;
     }
 
-    // --- GETTER & SETTER KHUSUS ENEMY ---
     public int getX() {
         return x;
     }
@@ -59,12 +58,10 @@ public class Enemy extends Character {
         this.dropExp = dropExp;
     }
 
-    // --- LOGIKA AI & RPG ---
     public String getAIAction() {
         return "attack";
     }
 
-    // AI move toward player (Fitur aslimu)
     public void moveToward(Hero hero) {
         if (hero.getX() > x)
             x += 2;
@@ -86,19 +83,16 @@ public class Enemy extends Character {
 
     @Override
     public int calculateDamage() {
-        // Fitur aslimu: Damage dasar ditambah angka acak 0-7
         Random random = new Random();
         return this.atk + random.nextInt(8);
     }
 
     @Override
     public void gainExp(int amount) {
-        // Musuh tidak perlu mendapatkan exp
     }
 
     @Override
     public void levelUp() {
-        // Musuh tidak perlu naik level
     }
 
     @Override
