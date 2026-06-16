@@ -286,12 +286,12 @@ function getPlayerTextureKey(
 }
 
 // LOAD TILES
-loadAsset("tiles", "0", "res/tiles/grass.png");
+loadAsset("tiles", "0", "res/tiles/002.png");
 loadAsset("tiles", "8", "res/tiles/000.png");
 loadAsset("tiles", "2", "res/tiles/019.png");
 loadAsset("tiles", "3", "res/tiles/017.png");
 loadAsset("tiles", "4", "res/tiles/tree.png");
-loadAsset("tiles", "5", "res/tiles/sand.png");
+loadAsset("tiles", "5", "res/tiles/003.png");
 loadAsset("tiles", "6", "res/tiles/036.png");
 loadAsset("tiles", "7", "res/objects/door.png");
 loadAsset("tiles", "1", "res/tiles/032.png");
@@ -304,6 +304,9 @@ loadAsset("tiles", "14", "res/tiles/027.png");
 loadAsset("tiles", "15", "res/tiles/028.png");
 loadAsset("tiles", "17", "res/tiles/017.png");
 loadAsset("tiles", "18", "res/tiles/007.png");
+loadAsset("tiles", "19", "res/tiles/010.png");
+loadAsset("tiles", "20", "res/tiles/013.png");
+loadAsset("tiles", "21", "res/tiles/009.png");
 loadAsset("tiles", "32", "res/tiles/032.png");
 loadAsset("tiles", "34", "res/tiles/034.png");
 loadAsset("tiles", "37", "res/tiles/037.png");
