@@ -76,7 +76,7 @@ pageEncoding="UTF-8"%>
           <p style="font-size: 0.85em; color: #ccc; margin-top: 10px;">
             <b>Music:</b>
           </p>
-          <div class="menu-btn" id="bgm-mute-btn" onclick="toggleBGMMute()" style="width: 100%; margin: 5px 0;">
+          <div class="menu-btn" id="bgm-mute-btn" onclick="toggleBGMMute()">
             🔊 MUTE MUSIC
           </div>
 

@@ -358,11 +358,11 @@ function parseServerEnemies(serverEnemies) {
     if (e.isBoss) {
       e.width = 96;
       e.height = 96;
-      e.speed = 0.5;
+      e.speed = 0.65;
     } else {
       e.width = 40;
       e.height = 40;
-      e.speed = 0.7;
+      e.speed = 0.9;
     }
     e.patrolDir = { x: 0, y: 0 };
     e.patrolTimer = 0;
@@ -380,7 +380,7 @@ let player = {
   name: "Player",
   x: 240,
   y: 240,
-  speed: 1.5,
+  speed: 3.0,
   width: TILE_SIZE,
   height: TILE_SIZE,
   job: "",
@@ -739,6 +739,14 @@ function closeInventory() {
   if (typeof requestAnimationFrame === "function")
     requestAnimationFrame(gameLoop);
 }
+function isOnlyInventoryOverlayActive() {
+  const activeOverlays = document.querySelectorAll(".overlay.active");
+  return (
+    activeOverlays.length === 1 &&
+    activeOverlays[0] &&
+    activeOverlays[0].id === "inventory-menu"
+  );
+}
 function gameOver() {
   stopBGM();
   isGameStarted = false;
@@ -1004,9 +1012,33 @@ window.addEventListener("keydown", (e) => {
     return;
   }
   if (e.key === "i" || e.key === "I") {
-    gameState === "PLAYING"
-      ? (showScreen("inventory-menu"), renderInventory())
-      : closeInventory();
+    const activeElement = document.activeElement;
+    if (
+      activeElement &&
+      (activeElement.tagName === "INPUT" ||
+        activeElement.tagName === "TEXTAREA" ||
+        activeElement.isContentEditable)
+    ) {
+      return;
+    }
+
+    if (gameState === "INVENTORY-MENU") {
+      closeInventory();
+      return;
+    }
+
+    if (!isOnlyInventoryOverlayActive() && !isGameStarted) {
+      return;
+    }
+
+    if (!isOnlyInventoryOverlayActive() && gameState !== "PLAYING") {
+      return;
+    }
+
+    if (!isOnlyInventoryOverlayActive()) {
+      showScreen("inventory-menu");
+      renderInventory();
+    }
     return;
   }
   keys[e.code] = true;

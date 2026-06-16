@@ -95,6 +95,12 @@ canvas {
   background: var(--primary); 
 }
 
+#bgm-mute-btn {
+  display: block;
+  width: 200px;
+  margin: 15px auto;
+}
+
 .settings-box {
   background: #2c3e50;
   padding: 20px;
