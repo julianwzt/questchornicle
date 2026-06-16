@@ -9,7 +9,7 @@ pageEncoding="UTF-8"%>
   </head>
   <body>
     <div id="game-container">
-      <canvas id="gameCanvas" width="800" height="600"></canvas>
+      <canvas id="gameCanvas"></canvas>
 
       <div id="main-menu" class="overlay active" data-type="menu">
         <h1 class="game-title">QUEST CHRONICLE</h1>
@@ -23,7 +23,7 @@ pageEncoding="UTF-8"%>
       <div id="job-menu" class="overlay">
             <h1 class="game-title">SELECT YOUR JOB</h1>
             <input type="text" id="username-input" placeholder="Masukkan Username..." autocomplete="off">
-            
+
             <div style="display: flex;">
                 <div class="job-card" onclick="startGame('Warrior')">
                     <h2>Warrior</h2>
@@ -65,8 +65,16 @@ pageEncoding="UTF-8"%>
           <h2 style="text-align: center; margin-top: 0; color: #e67e22">
             SETTINGS
           </h2>
-          <p>Volume Musik: <input type="range" style="width: 100%" /></p>
-          <p>Volume Efek: <input type="range" style="width: 100%" /></p>
+          <div class="volume-row">
+            <label>Volume Musik:</label>
+            <input type="range" id="bgm-volume" min="0" max="100" value="30" oninput="updateBGMVolume(this.value)" />
+            <span id="bgm-volume-val">30%</span>
+          </div>
+          <div class="volume-row">
+            <label>Volume Efek:</label>
+            <input type="range" id="sfx-volume" min="0" max="100" value="40" oninput="updateSFXVolume(this.value)" />
+            <span id="sfx-volume-val">40%</span>
+          </div>
           <hr style="border-color: #555" />
           <p style="font-size: 0.85em; color: #ccc">
             <b>Kontrol:</b> WASD/Panah gerak, Spasi serang, 1 & 2 Skill, I
@@ -108,7 +116,6 @@ pageEncoding="UTF-8"%>
               class="menu-btn"
               id="btn-main-menu"
               onclick="backToMainMenu()"
-              style="display: none"
             >
               MAIN MENU
             </div>
@@ -170,7 +177,7 @@ pageEncoding="UTF-8"%>
       </div>
 
       <div id="hud">
-        <b><span id="inv-name"></span></b>
+        <b><span id="hud-name"></span></b>
         <div style="font-size: 13px; margin-top: 5px">
           HP: <span id="hp-val">100</span> / <span id="max-hp-val">100</span>
         </div>

@@ -1,56 +1,134 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-//sound
-const BGM_VOLUME = 0.3;
-const bgmWorld = new Audio("res/sound/BlueBoyAdventure.wav");
-const bgmDungeon = new Audio("res/sound/background_music.mp3");
+// ===== SCREEN SIZE FIX =====
+const BASE_WIDTH = 800;
+const BASE_HEIGHT = 600;
 
-bgmWorld.loop = true;
-bgmWorld.volume = BGM_VOLUME;
-bgmDungeon.loop = true;
-bgmDungeon.volume = BGM_VOLUME;
+function resizeCanvas() {
+  const container = document.getElementById("game-container");
+  const containerWidth = container.clientWidth;
+  const containerHeight = container.clientHeight;
+  const scale = Math.min(containerWidth / BASE_WIDTH, containerHeight / BASE_HEIGHT);
+  canvas.width = BASE_WIDTH;
+  canvas.height = BASE_HEIGHT;
+  canvas.style.width = (BASE_WIDTH * scale) + "px";
+  canvas.style.height = (BASE_HEIGHT * scale) + "px";
+}
 
-let currentBgm = bgmWorld;
-let isBgmPlaying = false;
+window.addEventListener("resize", resizeCanvas);
+document.addEventListener("DOMContentLoaded", resizeCanvas);
+
+
+// ===== AUDIO SYSTEM - WEB AUDIO API (FIXED VOLUME) =====
+let bgmVolume = 0.3;
+let sfxVolume = 0.4;
 let isBgmMuted = false;
+let isBgmPlaying = false;
 
-function initBGM() {}
+// Web Audio API context
+let audioCtx = null;
+let bgmGainNode = null;
+let sfxGainNode = null;
+let bgmSourceNode = null;
+let currentBgmBuffer = null;
+let currentBgmName = "world";
+
+// BGM buffers
+let bgmWorldBuffer = null;
+let bgmDungeonBuffer = null;
+
+function initAudioContext() {
+  if (!audioCtx) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContext();
+
+    // Create gain nodes for volume control
+    bgmGainNode = audioCtx.createGain();
+    bgmGainNode.connect(audioCtx.destination);
+    bgmGainNode.gain.value = isBgmMuted ? 0 : bgmVolume;
+
+    sfxGainNode = audioCtx.createGain();
+    sfxGainNode.connect(audioCtx.destination);
+    sfxGainNode.gain.value = sfxVolume;
+  }
+  if (audioCtx.state === "suspended") {
+    audioCtx.resume();
+  }
+}
+
+// Load audio file as buffer
+async function loadAudioBuffer(url) {
+  try {
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    return await audioCtx.decodeAudioData(arrayBuffer);
+  } catch (e) {
+    console.error("Failed to load audio:", url, e);
+    return null;
+  }
+}
+
+// Preload BGM
+async function preloadBGM() {
+  initAudioContext();
+  if (!bgmWorldBuffer) {
+    bgmWorldBuffer = await loadAudioBuffer("res/sound/BlueBoyAdventure.wav");
+  }
+  if (!bgmDungeonBuffer) {
+    bgmDungeonBuffer = await loadAudioBuffer("res/sound/background_music.mp3");
+  }
+}
 
 function playBGM() {
-  if (isBgmMuted) return;
-  currentBgm.play().catch(() => {});
+  if (isBgmMuted || !audioCtx) return;
+
+  // Stop current BGM if playing
+  if (bgmSourceNode) {
+    try { bgmSourceNode.stop(); } catch(e) {}
+    bgmSourceNode = null;
+  }
+
+  const buffer = currentBgmName === "dungeon02" ? bgmDungeonBuffer : bgmWorldBuffer;
+  if (!buffer) return;
+
+  bgmSourceNode = audioCtx.createBufferSource();
+  bgmSourceNode.buffer = buffer;
+  bgmSourceNode.loop = true;
+  bgmSourceNode.connect(bgmGainNode);
+  bgmSourceNode.start(0);
   isBgmPlaying = true;
 }
 
 function pauseBGM() {
-  currentBgm.pause();
+  if (bgmSourceNode) {
+    try { bgmSourceNode.stop(); } catch(e) {}
+    bgmSourceNode = null;
+  }
   isBgmPlaying = false;
 }
 
 function stopBGM() {
-  bgmWorld.pause();
-  bgmWorld.currentTime = 0;
-  bgmDungeon.pause();
-  bgmDungeon.currentTime = 0;
-  isBgmPlaying = false;
+  pauseBGM();
 }
 
 function switchBGM(mapName) {
   let wasPlaying = isBgmPlaying;
   pauseBGM();
-  if (mapName === "dungeon02") {
-    currentBgm = bgmDungeon;
-  } else {
-    currentBgm = bgmWorld;
-  }
+  currentBgmName = mapName;
   if (wasPlaying && !isBgmMuted) playBGM();
 }
 
 function toggleBGMMute() {
   isBgmMuted = !isBgmMuted;
-  if (isBgmMuted) pauseBGM();
-  else playBGM();
+  if (bgmGainNode) {
+    bgmGainNode.gain.value = isBgmMuted ? 0 : bgmVolume;
+  }
+  if (isBgmMuted) {
+    pauseBGM();
+  } else {
+    playBGM();
+  }
   updateMuteButton();
   return isBgmMuted;
 }
@@ -61,55 +139,79 @@ function updateMuteButton() {
     btn.innerText = isBgmMuted ? "🔇 UNMUTE MUSIC" : "🔊 MUTE MUSIC";
     btn.style.background = isBgmMuted ? "#c0392b" : "#27ae60";
   }
+}
 
-  const radioOn = document.querySelector('input[type="radio"][value="on"]');
-  const radioOff = document.querySelector('input[type="radio"][value="off"]');
-  if (radioOn && radioOff) {
-    if (isBgmMuted) radioOff.checked = true;
-    else radioOn.checked = true;
+function updateBGMVolume(val) {
+  bgmVolume = val / 100;
+  document.getElementById("bgm-volume-val").innerText = val + "%";
+  if (bgmGainNode) {
+    bgmGainNode.gain.value = isBgmMuted ? 0 : bgmVolume;
+  }
+  if (bgmVolume > 0 && isBgmMuted) {
+    isBgmMuted = false;
+    updateMuteButton();
+    if (!isBgmPlaying) playBGM();
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll('input[type="radio"]').forEach((radio) => {
-    radio.addEventListener("change", (e) => {
-      if (e.target.value === "on") {
-        isBgmMuted = false;
-        playBGM();
-      } else if (e.target.value === "off") {
-        isBgmMuted = true;
-        pauseBGM();
-      }
-      updateMuteButton();
-    });
-  });
-});
+function updateSFXVolume(val) {
+  sfxVolume = val / 100;
+  document.getElementById("sfx-volume-val").innerText = val + "%";
+  if (sfxGainNode) {
+    sfxGainNode.gain.value = sfxVolume;
+  }
+}
 
-const SFX_VOLUME = 0.4;
-const sfx = {
-  attack: new Audio("res/sound/cuttree.wav"),
-  hit: new Audio("res/sound/hitmonster.wav"),
-  hurt: new Audio("res/sound/receivedamage.wav"),
-  pickup: new Audio("res/sound/coin.wav"),
-  unlock: new Audio("res/sound/unlock.wav"),
-  levelup: new Audio("res/sound/levelup.wav"),
-  fanfare: new Audio("res/sound/fanfare.wav"),
-  powerup: new Audio("res/sound/powerup.wav")
+// SFX using Web Audio API
+const sfxBuffers = {};
+const sfxUrls = {
+  attack: "res/sound/cuttree.wav",
+  hit: "res/sound/hitmonster.wav",
+  hurt: "res/sound/receivedamage.wav",
+  pickup: "res/sound/coin.wav",
+  unlock: "res/sound/unlock.wav",
+  levelup: "res/sound/levelup.wav",
+  fanfare: "res/sound/fanfare.wav",
+  powerup: "res/sound/powerup.wav"
 };
-Object.values(sfx).forEach((a) => {
-  a.volume = SFX_VOLUME;
-  a.preload = "auto";
-});
+
+async function preloadSFX() {
+  initAudioContext();
+  for (const [name, url] of Object.entries(sfxUrls)) {
+    if (!sfxBuffers[name]) {
+      sfxBuffers[name] = await loadAudioBuffer(url);
+    }
+  }
+}
 
 function playSfx(name) {
-  const base = sfx[name];
-  if (!base) return;
-  try {
-    const node = base.cloneNode();
-    node.volume = SFX_VOLUME;
-    node.play().catch(() => {});
-  } catch (e) {}
+  if (!audioCtx || !sfxGainNode) return;
+  const buffer = sfxBuffers[name];
+  if (!buffer) return;
+
+  const source = audioCtx.createBufferSource();
+  source.buffer = buffer;
+  source.connect(sfxGainNode);
+  source.start(0);
 }
+
+// Preload all audio on first user interaction
+document.addEventListener("click", async () => {
+  if (!audioCtx) {
+    await preloadBGM();
+    await preloadSFX();
+  }
+}, { once: true });
+
+// Also try to preload on DOMContentLoaded
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(async () => {
+    if (!audioCtx) {
+      await preloadBGM();
+      await preloadSFX();
+    }
+  }, 1000);
+});
 
 //puzzlekotak4
 let puzzlePlates = [];
@@ -722,6 +824,17 @@ function showScreen(id) {
 function openSettings() {
   pauseBGM();
   showScreen("settings-menu");
+  // Update volume sliders to match current values
+  document.getElementById("bgm-volume").value = Math.round(bgmVolume * 100);
+  document.getElementById("bgm-volume-val").innerText = Math.round(bgmVolume * 100) + "%";
+  document.getElementById("sfx-volume").value = Math.round(sfxVolume * 100);
+  document.getElementById("sfx-volume-val").innerText = Math.round(sfxVolume * 100) + "%";
+
+  // Show/hide MAIN MENU button based on game state
+  const btnMainMenu = document.getElementById("btn-main-menu");
+  if (btnMainMenu) {
+    btnMainMenu.style.display = isGameStarted ? "block" : "none";
+  }
 }
 function closeSettings() {
   if (isGameStarted) {
@@ -1170,12 +1283,14 @@ function updateHUD() {
   const hpFill = document.getElementById("hp-fill");
   const resName = document.getElementById("res-name");
   const resVal = document.getElementById("res-val");
+  const hudName = document.getElementById("hud-name");
   if (hpVal) hpVal.innerText = Math.ceil(player.hp);
   if (maxHpVal) maxHpVal.innerText = player.maxHp;
   if (hpFill) hpFill.style.width = (player.hp / player.maxHp) * 100 + "%";
   if (resName)
     resName.innerText = player.job === "Warrior" ? "Rage/MP" : "Mana/MP";
   if (resVal) resVal.innerText = player.mp + " / " + player.maxMp;
+  if (hudName) hudName.innerText = player.name || "Player";
 }
 
 function checkCollision(x, y, w, h, target) {
