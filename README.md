@@ -24,7 +24,7 @@ Anda harus menyiapkan database bernama `quest_db` di MySQL. Terdapat dua cara un
 1. Buka phpMyAdmin (http://localhost/phpmyadmin/).
 2. Buat database baru dengan nama `quest_db`.
 3. Pilih database tersebut, lalu klik tab **Import**.
-4. Pilih file `.sql` bawaan yang ada di dalam folder proyek ini (jika disediakan).
+4. Pilih file `.sql` bawaan yang ada di dalam folder Lampiran.
 5. Klik **Go** atau **Import**.
 
 ### Opsi 2: Membuat Tabel Secara Manual (Query SQL)
