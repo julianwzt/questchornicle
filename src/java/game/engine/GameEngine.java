@@ -13,7 +13,6 @@ public class GameEngine {
     private Hero hero;
     private final GameMap map;
     private final SaveManager saveManager;
-    private final BattleSystem battleSystem;
 
     private List<Enemy> activeEnemies;
     private List<String> activeChests;
@@ -24,7 +23,6 @@ public class GameEngine {
         this.saveManager = new SaveManager();
         this.activeEnemies = new ArrayList<>();
         this.activeChests = new ArrayList<>();
-        this.battleSystem = new BattleSystem(this.hero, new Enemy("Dummy", 100, 10, 0, 0));
     }
 
     public void spawnEntities() {
@@ -89,10 +87,6 @@ public class GameEngine {
 
     public List<Enemy> getActiveEnemies() {
         return this.activeEnemies;
-    }
-
-    public BattleSystem getBattleSystem() {
-        return this.battleSystem;
     }
 
     public void saveGame(int slotId) {
