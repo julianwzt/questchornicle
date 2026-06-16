@@ -1,5 +1,6 @@
 package game.engine;
 
+import game.model.Boss;
 import game.model.Enemy;
 import game.model.Hero;
 import game.model.Orc;
@@ -12,7 +13,6 @@ public class GameEngine {
     private Hero hero; 
     private final GameMap map;
     private final SaveManager saveManager; 
-    private final BattleSystem battleSystem;
     
     private List<Enemy> activeEnemies;
     private List<String> activeChests;
@@ -23,23 +23,32 @@ public class GameEngine {
         this.saveManager = new SaveManager(); 
         this.activeEnemies = new ArrayList<>();
         this.activeChests = new ArrayList<>();
-        this.battleSystem = new BattleSystem(this.hero, new Enemy("Dummy", 100, 10, 0, 0));
     }
 
-    // [FITUR BARU] Hanya tugas sebar musuh dan peti
     public void spawnEntities() {
         activeEnemies.clear();
         activeChests.clear();
         
         activeEnemies.add(new Slime(720, 480));
-        activeEnemies.add(new Orc(1680, 720)); 
-        activeEnemies.add(new Enemy("bat", 40, 5, 480, 1440));     
+        activeEnemies.add(new Orc(1680, 720));
+        activeEnemies.add(new Enemy("bat", 40, 5, 480, 1440));
         activeEnemies.add(new Slime(1680, 1920));
-        activeEnemies.add(new Orc(1200, 1920));   
-        
+        activeEnemies.add(new Orc(1300, 1920));
+        activeEnemies.add(new Orc(500, 1500));
+        activeEnemies.add(new Enemy("bat", 60, 15, 800, 300));
+        activeChests.add("{\"x\": 336, \"y\": 192, \"item\": \"sword\", \"opened\": false}");
+        activeChests.add("{\"x\": 432, \"y\": 192, \"item\": \"shield\", \"opened\": false}");
+        activeChests.add("{\"x\": 2000, \"y\": 630, \"item\": \"key\", \"opened\": false}");
         activeChests.add("{\"x\": 384, \"y\": 960, \"item\": \"potion\", \"opened\": false}");
-        activeChests.add("{\"x\": 1920, \"y\": 480, \"item\": \"sword\", \"opened\": false}");
+    }
+
+    public void spawnDungeonEntities() {
+        activeEnemies.clear();
+        activeChests.clear();
+        
+        activeEnemies.add(new Boss(800, 500)); // Boss muncul di Dungeon
         activeChests.add("{\"x\": 960, \"y\": 960, \"item\": \"potion\", \"opened\": false}");
+        activeChests.add("{\"x\": 870, \"y\": 114, \"item\": \"clue\", \"opened\": false}");
     }
 
     public boolean openChest(int chestIndex) {
@@ -47,6 +56,21 @@ public class GameEngine {
             String chestData = activeChests.get(chestIndex);
             if (!chestData.contains("\"opened\": true")) {
                 activeChests.set(chestIndex, chestData.replace("\"opened\": false", "\"opened\": true"));
+                
+                if (chestData.contains("\"item\": \"potion\"")) {
+                    hero.setPotionCount(hero.getPotionCount() + 1);
+                } else if (chestData.contains("\"item\": \"sword\"") && !hero.isHasSword()) {
+                    hero.setHasSword(true);
+                    hero.setAtk(hero.getAtk() + 15); 
+                } else if (chestData.contains("\"item\": \"shield\"") && !hero.isHasShield()) {
+                    hero.setHasShield(true);
+                    hero.setDef(hero.getDef() + 10); 
+                } else if (chestData.contains("\"item\": \"key\"")) {
+                    hero.setKeyCount(hero.getKeyCount() + 1); 
+                } else if (chestData.contains("\"item\": \"clue\"") && !hero.isHasClue()) {
+                    hero.setHasClue(true);
+                }
+                
                 return true;
             }
         }
@@ -56,10 +80,12 @@ public class GameEngine {
     public Hero getHero() { return this.hero; }
     public GameMap getGameMap() { return this.map; }
     public List<Enemy> getActiveEnemies() { return this.activeEnemies; }
-    public BattleSystem getBattleSystem() { return this.battleSystem; }
 
-    public void saveGame(int slotId) {
-        if (this.saveManager != null && this.hero != null) this.saveManager.save(this.hero, slotId); 
+    public boolean saveGame(int slotId) {
+        if (this.saveManager != null && this.hero != null) {
+            return this.saveManager.save(this.hero, slotId); 
+        }
+        return false;
     }
     
     public boolean loadGame(int slotId) {
@@ -80,19 +106,21 @@ public class GameEngine {
         json.append("{");
         
         json.append(String.format(
-            "\"player\": {\"hp\": %d, \"maxHp\": %d, \"mp\": %d, \"maxMp\": %d, \"level\": %d, \"exp\": %d, \"maxExp\": %d, \"x\": %d, \"y\": %d, \"job\": \"%s\"},",
-            this.hero.getHp(), this.hero.getMaxHp(), this.hero.getMp(), this.hero.getMaxMp(),
+            "\"player\": {\"name\": \"%s\", \"hp\": %d, \"maxHp\": %d, \"mp\": %d, \"maxMp\": %d, \"level\": %d, \"exp\": %d, \"maxExp\": %d, \"x\": %d, \"y\": %d, \"job\": \"%s\", \"atk\": %d, \"def\": %d, \"keys\": %d},",
+            this.hero.getNama(), this.hero.getHp(), this.hero.getMaxHp(), this.hero.getMp(), this.hero.getMaxMp(),
             this.hero.getLevel(), this.hero.getExp(), this.hero.getMaxExp(),
             this.hero.getX(), this.hero.getY(),
-            (this.hero.job != null ? this.hero.job : "Warrior")
+            (this.hero.job != null ? this.hero.job : "Warrior"),
+            this.hero.getAtk(), this.hero.getDef(), this.hero.getKeyCount()
         ));
 
         json.append("\"enemies\": [");
         for (int i = 0; i < activeEnemies.size(); i++) {
             Enemy e = activeEnemies.get(i);
+            String skinName = e.isBoss() ? "skeletonlord" : e.getNama().toLowerCase();
             json.append(String.format(
-                "{\"skin\": \"%s\", \"hp\": %d, \"maxHp\": %d, \"damage\": %d, \"x\": %d, \"y\": %d, \"alive\": %b, \"state\": \"IDLE\"}",
-                e.getNama(), e.getHp(), e.getMaxHp(), e.getDamage(), e.getX(), e.getY(), (e.getHp() > 0)
+                "{\"skin\": \"%s\", \"hp\": %d, \"maxHp\": %d, \"damage\": %d, \"x\": %d, \"y\": %d, \"alive\": %b, \"state\": \"IDLE\", \"isBoss\": %b}",
+                skinName, e.getHp(), e.getMaxHp(), e.getDamage(), e.getX(), e.getY(), (e.getHp() > 0), e.isBoss()
             ));
             if (i < activeEnemies.size() - 1) json.append(",");
         }
@@ -105,7 +133,26 @@ public class GameEngine {
         }
         json.append("],");
         
-        json.append("\"inventory\": [{\"name\": \"Red Potion\", \"type\": \"potion\", \"count\": " + (hero.getHp() < 0 ? 0 : 3) + "}]");
+        List<String> invItems = new ArrayList<>();
+        if (hero.getPotionCount() > 0) {
+            invItems.add("{\"name\": \"Red Potion\", \"type\": \"potion\", \"count\": " + hero.getPotionCount() + "}");
+        }
+        if (hero.getKeyCount() > 0) {
+            invItems.add("{\"name\": \"Dungeon Key\", \"type\": \"key\", \"count\": " + hero.getKeyCount() + "}");
+        }
+        if (hero.isHasSword()) {
+            invItems.add("{\"name\": \"Iron Sword\", \"type\": \"sword\", \"count\": 1, \"equipped\": true}");
+        }
+        if (hero.isHasShield()) {
+            invItems.add("{\"name\": \"Wooden Shield\", \"type\": \"shield\", \"count\": 1, \"equipped\": true}");
+        }
+        if (hero.isHasClue()) {
+            invItems.add("{\"name\": \"Kertas Petunjuk\", \"type\": \"clue\", \"count\": 1, \"equipped\": false}");
+        }
+        
+        json.append("\"inventory\": [");
+        json.append(String.join(",", invItems));
+        json.append("]");
 
         json.append("}");
         return json.toString();

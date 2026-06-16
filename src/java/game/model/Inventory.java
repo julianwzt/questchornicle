@@ -15,6 +15,22 @@ public class Inventory implements java.io.Serializable {
         return false;
     }
 
+    public List<Item> getItems() {
+        return items;
+    }
+
+    public void setItems(List<Item> items) {
+        this.items = items;
+    }
+
+    public int getMaxCap() {
+        return maxCap;
+    }
+
+    public void setMaxCap(int maxCap) {
+        this.maxCap = maxCap;
+    }
+
     public boolean removeItem(Item i) {
         return items.remove(i);
     }

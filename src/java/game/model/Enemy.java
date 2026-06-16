@@ -9,57 +9,69 @@ public class Enemy extends Character {
     private int dropExp;
 
     public Enemy(String nama, int hp, int damage, int x, int y) {
-        this.nama = nama;       
-        this.hp = hp;          
+        this.nama = nama;
+        this.hp = hp;
         this.maxHp = hp;
-        this.atk = damage;     
+        this.atk = damage;
         this.x = x;
         this.y = y;
-        this.dropExp = 50;     
+        this.dropExp = 50;
     }
 
-    // --- GETTER & SETTER KHUSUS ENEMY ---
+    public boolean isBoss() {
+        return false;
+    }
+
     public int getX() {
-        return x; 
-    }
-    
-    public void setX(int x) {
-        this.x = x; 
+        return x;
     }
 
-    public int getY() { return y; }
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
     public void setY(int y) {
-        this.y = y; 
+        this.y = y;
     }
 
     public int getDamage() {
-        return this.atk; 
+        return this.atk;
     }
 
     public Item getDropItem() {
-        return dropItem; 
+        return dropItem;
     }
-    
+
     public void setDropItem(Item dropItem) {
-        this.dropItem = dropItem; 
+        this.dropItem = dropItem;
     }
 
     public int getDropExp() {
-        return dropExp; 
+        return dropExp;
     }
 
-    // --- LOGIKA AI & RPG ---
+    public void setDropExp(int dropExp) {
+        this.dropExp = dropExp;
+    }
+
     public String getAIAction() {
         return "attack";
     }
 
-    // AI move toward player (Fitur aslimu)
     public void moveToward(Hero hero) {
-        if (hero.getX() > x) x += 2;
-        if (hero.getX() < x) x -= 2;
+        if (hero.getX() > x)
+            x += 2;
+        if (hero.getX() < x)
+            x -= 2;
 
-        if (hero.getY() > y) y += 2;
-        if (hero.getY() < y) y -= 2;
+        if (hero.getY() > y)
+            y += 2;
+        if (hero.getY() < y)
+            y -= 2;
     }
 
     @Override
@@ -71,19 +83,16 @@ public class Enemy extends Character {
 
     @Override
     public int calculateDamage() {
-        // Fitur aslimu: Damage dasar ditambah angka acak 0-7
         Random random = new Random();
         return this.atk + random.nextInt(8);
     }
 
     @Override
     public void gainExp(int amount) {
-        // Musuh tidak perlu mendapatkan exp
     }
 
     @Override
     public void levelUp() {
-        // Musuh tidak perlu naik level
     }
 
     @Override

@@ -2,7 +2,7 @@ package game.model;
 
 public class Potion extends Item {
     private final int healAmount;
-
+    
     public Potion(int healAmount) {
         this.healAmount = healAmount;
     }

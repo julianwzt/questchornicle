@@ -23,20 +23,16 @@ public class GameMap {
         }
         rows = tempMap.size();
         mapData = tempMap.toArray(new int[0][]);
-        
-        // Indikator bahwa map dari .txt berhasil terbaca oleh Java Backend
-        System.out.println("Map berhasil dimuat di backend: " + cols + "x" + rows);
+                System.out.println("Map berhasil dimuat di backend: " + cols + "x" + rows);
     }
 
     public int getTile(int x, int y) {
-        // Mencegah error OutOfBounds
         if(y >= 0 && y < rows && x >= 0 && x < cols) {
             return mapData[y][x];
         }
         return -1; 
     }
     
-    // Tambahan: Method untuk mengekspos data map agar bisa divalidasi oleh class lain
     public int[][] getMapData() {
         return mapData;
     }
